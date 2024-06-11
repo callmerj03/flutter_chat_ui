@@ -16,12 +16,13 @@ import 'send_button.dart';
 /// send buttons inside. By default hides send button when text field is empty.
 class Input extends StatefulWidget {
   /// Creates [Input] widget.
-  const Input({
+   Input({
     super.key,
     this.isAttachmentUploading,
     this.onAttachmentPressed,
     required this.onSendPressed,
     this.options = const InputOptions(),
+    // required this.textController,
   });
 
   /// Whether attachment is uploading. Will replace attachment button with a
@@ -29,6 +30,8 @@ class Input extends StatefulWidget {
   /// managing media in dependencies we have no way of knowing if
   /// something is uploading so you need to set this manually.
   final bool? isAttachmentUploading;
+
+  // TextEditingController textController;
 
   /// See [AttachmentButton.onPressed].
   final VoidCallback? onAttachmentPressed;
@@ -55,7 +58,7 @@ class _InputState extends State<Input> {
               PhysicalKeyboardKey.shiftRight,
             }.contains(el),
           )) {
-        if (kIsWeb && _textController.value.isComposingRangeValid) {
+        if (kIsWeb && textController.value.isComposingRangeValid) {
           return KeyEventResult.ignored;
         }
         if (event is KeyDownEvent) {
@@ -69,58 +72,53 @@ class _InputState extends State<Input> {
   );
 
   bool _sendButtonVisible = false;
-  late TextEditingController _textController;
+
+  late TextEditingController textController;
 
   @override
   void initState() {
     super.initState();
 
-    _textController =
-        widget.options.textEditingController ?? InputTextFieldController();
+    textController = widget.options.textEditingController ?? InputTextFieldController();
     _handleSendButtonVisibilityModeChange();
   }
 
   void _handleSendButtonVisibilityModeChange() {
-    _textController.removeListener(_handleTextControllerChange);
-    if (widget.options.sendButtonVisibilityMode ==
-        SendButtonVisibilityMode.hidden) {
+    textController.removeListener(_handleTextControllerChange);
+    if (widget.options.sendButtonVisibilityMode == SendButtonVisibilityMode.hidden) {
       _sendButtonVisible = false;
-    } else if (widget.options.sendButtonVisibilityMode ==
-        SendButtonVisibilityMode.editing) {
-      _sendButtonVisible = _textController.text.trim() != '';
-      _textController.addListener(_handleTextControllerChange);
+    } else if (widget.options.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
+      _sendButtonVisible = textController.text.trim() != '';
+      textController.addListener(_handleTextControllerChange);
     } else {
       _sendButtonVisible = true;
     }
   }
 
   void _handleSendPressed() {
-    final trimmedText = _textController.text.trim();
+    final trimmedText = textController.text.trim();
     if (trimmedText != '') {
       final partialText = types.PartialText(text: trimmedText);
       widget.onSendPressed(partialText);
 
       if (widget.options.inputClearMode == InputClearMode.always) {
-        _textController.clear();
+        textController.clear();
       }
     }
   }
 
   void _handleTextControllerChange() {
-    if (_textController.value.isComposingRangeValid) {
+    if (textController.value.isComposingRangeValid) {
       return;
     }
     setState(() {
-      _sendButtonVisible = _textController.text.trim() != '';
+      _sendButtonVisible = textController.text.trim() != '';
     });
   }
 
   Widget _inputBuilder() {
     final query = MediaQuery.of(context);
-    final buttonPadding = InheritedChatTheme.of(context)
-        .theme
-        .inputPadding
-        .copyWith(left: 16, right: 16);
+    final buttonPadding = InheritedChatTheme.of(context).theme.inputPadding.copyWith(left: 16, right: 16);
     final safeAreaInsets = isMobile
         ? EdgeInsets.fromLTRB(
             query.padding.left,
@@ -129,11 +127,7 @@ class _InputState extends State<Input> {
             query.viewInsets.bottom + query.padding.bottom,
           )
         : EdgeInsets.zero;
-    final textPadding = InheritedChatTheme.of(context)
-        .theme
-        .inputPadding
-        .copyWith(left: 0, right: 0)
-        .add(
+    final textPadding = InheritedChatTheme.of(context).theme.inputPadding.copyWith(left: 0, right: 0).add(
           EdgeInsets.fromLTRB(
             widget.onAttachmentPressed != null ? 0 : 24,
             0,
@@ -149,12 +143,10 @@ class _InputState extends State<Input> {
         child: Material(
           borderRadius: InheritedChatTheme.of(context).theme.inputBorderRadius,
           color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
-          surfaceTintColor:
-              InheritedChatTheme.of(context).theme.inputSurfaceTintColor,
+          surfaceTintColor: InheritedChatTheme.of(context).theme.inputSurfaceTintColor,
           elevation: InheritedChatTheme.of(context).theme.inputElevation,
           child: Container(
-            decoration:
-                InheritedChatTheme.of(context).theme.inputContainerDecoration,
+            decoration: InheritedChatTheme.of(context).theme.inputContainerDecoration,
             padding: safeAreaInsets,
             child: Row(
               textDirection: TextDirection.ltr,
@@ -173,25 +165,13 @@ class _InputState extends State<Input> {
                       autocorrect: widget.options.autocorrect,
                       autofocus: widget.options.autofocus,
                       enableSuggestions: widget.options.enableSuggestions,
-                      controller: _textController,
-                      cursorColor: InheritedChatTheme.of(context)
-                          .theme
-                          .inputTextCursorColor,
-                      decoration: InheritedChatTheme.of(context)
-                          .theme
-                          .inputTextDecoration
-                          .copyWith(
-                            hintStyle: InheritedChatTheme.of(context)
-                                .theme
-                                .inputTextStyle
-                                .copyWith(
-                                  color: InheritedChatTheme.of(context)
-                                      .theme
-                                      .inputTextColor
-                                      .withOpacity(0.5),
+                      controller: textController,
+                      cursorColor: InheritedChatTheme.of(context).theme.inputTextCursorColor,
+                      decoration: InheritedChatTheme.of(context).theme.inputTextDecoration.copyWith(
+                            hintStyle: InheritedChatTheme.of(context).theme.inputTextStyle.copyWith(
+                                  color: InheritedChatTheme.of(context).theme.inputTextColor.withOpacity(0.5),
                                 ),
-                            hintText:
-                                InheritedL10n.of(context).l10n.inputPlaceholder,
+                            hintText: InheritedL10n.of(context).l10n.inputPlaceholder,
                           ),
                       focusNode: _inputFocusNode,
                       keyboardType: widget.options.keyboardType,
@@ -199,13 +179,8 @@ class _InputState extends State<Input> {
                       minLines: 1,
                       onChanged: widget.options.onTextChanged,
                       onTap: widget.options.onTextFieldTap,
-                      style: InheritedChatTheme.of(context)
-                          .theme
-                          .inputTextStyle
-                          .copyWith(
-                            color: InheritedChatTheme.of(context)
-                                .theme
-                                .inputTextColor,
+                      style: InheritedChatTheme.of(context).theme.inputTextStyle.copyWith(
+                            color: InheritedChatTheme.of(context).theme.inputTextColor,
                           ),
                       textCapitalization: TextCapitalization.sentences,
                     ),
@@ -234,8 +209,7 @@ class _InputState extends State<Input> {
   @override
   void didUpdateWidget(covariant Input oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.options.sendButtonVisibilityMode !=
-        oldWidget.options.sendButtonVisibilityMode) {
+    if (widget.options.sendButtonVisibilityMode != oldWidget.options.sendButtonVisibilityMode) {
       _handleSendButtonVisibilityModeChange();
     }
   }
@@ -243,7 +217,7 @@ class _InputState extends State<Input> {
   @override
   void dispose() {
     _inputFocusNode.dispose();
-    _textController.dispose();
+    // textController.dispose();
     super.dispose();
   }
 

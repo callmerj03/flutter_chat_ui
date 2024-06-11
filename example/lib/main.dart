@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -39,6 +41,8 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   List<types.Message> _messages = [];
+  final _controller = TextEditingController();
+
   final _user = const types.User(
     id: '82091008-a484-4a89-ae75-a22bf8d6f3ac',
   );
@@ -150,10 +154,8 @@ class _ChatPageState extends State<ChatPage> {
 
       if (message.uri.startsWith('http')) {
         try {
-          final index =
-              _messages.indexWhere((element) => element.id == message.id);
-          final updatedMessage =
-              (_messages[index] as types.FileMessage).copyWith(
+          final index = _messages.indexWhere((element) => element.id == message.id);
+          final updatedMessage = (_messages[index] as types.FileMessage).copyWith(
             isLoading: true,
           );
 
@@ -172,10 +174,8 @@ class _ChatPageState extends State<ChatPage> {
             await file.writeAsBytes(bytes);
           }
         } finally {
-          final index =
-              _messages.indexWhere((element) => element.id == message.id);
-          final updatedMessage =
-              (_messages[index] as types.FileMessage).copyWith(
+          final index = _messages.indexWhere((element) => element.id == message.id);
+          final updatedMessage = (_messages[index] as types.FileMessage).copyWith(
             isLoading: null,
           );
 
@@ -216,26 +216,70 @@ class _ChatPageState extends State<ChatPage> {
 
   void _loadMessages() async {
     final response = await rootBundle.loadString('assets/messages.json');
-    final messages = (jsonDecode(response) as List)
-        .map((e) => types.Message.fromJson(e as Map<String, dynamic>))
-        .toList();
+    final messages = (jsonDecode(response) as List).map((e) => types.Message.fromJson(e as Map<String, dynamic>)).toList();
 
     setState(() {
       _messages = messages;
     });
   }
 
+  Future<void> emojiClick(String? emojiValue) async {
+    print("pelliii>>>||| <<<<>>> ${emojiValue}");
+
+    if (emojiValue != null) {
+      Fluttertoast.showToast(
+          msg: emojiValue,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: Chat(
-          messages: _messages,
-          onAttachmentPressed: _handleAttachmentPressed,
-          onMessageTap: _handleMessageTap,
-          onPreviewDataFetched: _handlePreviewDataFetched,
-          onSendPressed: _handleSendPressed,
-          showUserAvatars: true,
-          showUserNames: true,
-          user: _user,
+  Widget build(BuildContext context) => WillPopScope(
+        onWillPop: () async {
+          // closeOverlay();
+          return false;
+        },
+        child: Scaffold(
+          body: Column(
+            children: [
+              Expanded(
+                child: Chat(
+                  messages: _messages,
+                  inputOptions: InputOptions(textEditingController: _controller, onTextFieldTap: () {}),
+                  onAttachmentPressed: _handleAttachmentPressed,
+                  onMessageTap: _handleMessageTap,
+                  onPreviewDataFetched: _handlePreviewDataFetched,
+                  onSendPressed: _handleSendPressed,
+                  showUserAvatars: true,
+                  showUserNames: true,
+                  user: _user,
+                  emojiEnlargementBehavior: EmojiEnlargementBehavior.single,
+                  emojiList: [
+                    {'emoji': '👍'},
+                    {'emoji': '👍'},
+                    {'emoji': '👍'},
+                    {'emoji': '👍'},
+                    {'emoji': null},
+                  ],
+                  menuActionModel: [
+                    MenuActionModel(title: "Copy", callback: (message) {}, icon: Icons.copy),
+                    MenuActionModel(title: "Forward", callback: (message) {}, icon: Icons.send),
+                    MenuActionModel(title: "Delete", callback: (message) {}, icon: Icons.delete),
+                  ],
+                  emojiClick: emojiClick,
+                  // textController: _controller,
+                ),
+              ),
+            ],
+          ),
         ),
       );
 }
+
+
+

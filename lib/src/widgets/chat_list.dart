@@ -23,8 +23,9 @@ class ChatList extends StatefulWidget {
     required this.scrollController,
     this.scrollPhysics,
     this.typingIndicatorOptions,
-    required this.useTopSafeAreaInset,
+    required this.useTopSafeAreaInset
   });
+
 
   /// A custom widget at the bottom of the list.
   final Widget? bottomWidget;
@@ -187,6 +188,7 @@ class _ChatListState extends State<ChatList>
           }
         }
       }
+
     } catch (e) {
       // Do nothing if there are no items.
     }
