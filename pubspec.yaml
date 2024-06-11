@@ -31,7 +31,10 @@ dependencies:
   url_launcher: '>=6.1.12 <7.0.0'
   visibility_detector: ^0.4.0+2
   super_context_menu:
-    path: packages/super_context_menu
+    git:
+      url: https://github.com/callmerj03/super_context_menu.git
+#  super_context_menu:
+#    path: packages/super_context_menu
 
 dev_dependencies:
   dart_code_metrics: ^5.6.0
