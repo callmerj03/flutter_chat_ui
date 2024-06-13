@@ -112,7 +112,7 @@ class Chat extends StatefulWidget {
   });
 
   final List<Map> emojiList;
-  final Function(String?) emojiClick;
+  final Function(String?, types.Message) emojiClick;
   final List<MenuActionModel> menuActionModel;
 
   /// See [Message.audioMessageBuilder].

@@ -66,7 +66,7 @@ class Message extends StatelessWidget {
 
   //
   final List<Map> emojiList;
-  final Function(String?) emojiClick;
+  final Function(String?, types.Message ) emojiClick;
   final List<MenuActionModel> menuActionModel;
 
   final int? index;
@@ -453,7 +453,7 @@ class Message extends StatelessWidget {
                             );
                           },
                 emojiClick: (emoji) {
-                  emojiClick(emoji);
+                  emojiClick(emoji, message);
                 },
                 child: messageView(context, currentUserIsAuthor, false)),
           ),

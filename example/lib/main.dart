@@ -223,8 +223,9 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  Future<void> emojiClick(String? emojiValue) async {
-    print("pelliii>>>||| <<<<>>> ${emojiValue}");
+  Future<void> emojiClick(String? emojiValue , types.Message message) async {
+    print("pelliii>>>||| <<<<>>> ${emojiValue} ${message}");
+
 
     if (emojiValue != null) {
       Fluttertoast.showToast(
