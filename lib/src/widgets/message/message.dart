@@ -226,6 +226,8 @@ class Message extends StatelessWidget {
                 ),
               ),
               if (showReaction == true)
+                if(message.reaction != null)
+                if(message.reaction.toString().isNotEmpty)
                 Positioned(
                   bottom: 0,
                   left: !currentUserIsAuthor ? null : 16,
@@ -239,7 +241,7 @@ class Message extends StatelessWidget {
                           ? InheritedChatTheme.of(context).theme.secondaryColor
                           : InheritedChatTheme.of(context).theme.primaryColor,
                     ),
-                    child: Center(child: Text("👍")),
+                    child: Center(child: Text(message.reaction!)),
                   ),
                 ),
             ],
@@ -402,6 +404,13 @@ class Message extends StatelessWidget {
             ),
             child: ContextMenuWidget(
                 menuProvider: (MenuRequest request) {
+                  if (menuActionModel == null) {
+                    return null;
+                  }
+                  if (menuActionModel.length == 0) {
+                    return null;
+                  }
+
                   return Menu(
                     children: [
                       for (MenuActionModel item in menuActionModel)
