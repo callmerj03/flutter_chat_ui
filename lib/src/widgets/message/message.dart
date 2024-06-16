@@ -403,6 +403,7 @@ class Message extends StatelessWidget {
               maxWidth: messageWidth.toDouble(),
             ),
             child: ContextMenuWidget(
+                chatReaction: message.reaction,
                 menuProvider: (MenuRequest request) {
                   if (menuActionModel == null) {
                     return null;
