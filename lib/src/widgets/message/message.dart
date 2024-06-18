@@ -404,6 +404,7 @@ class Message extends StatelessWidget {
             constraints: BoxConstraints(
               maxWidth: messageWidth.toDouble(),
             ),
+
             child: message.isDeleted == true
                 ? Container(
                     decoration: BoxDecoration(
