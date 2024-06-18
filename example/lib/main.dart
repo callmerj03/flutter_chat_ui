@@ -209,6 +209,7 @@ class _ChatPageState extends State<ChatPage> {
       createdAt: DateTime.now().millisecondsSinceEpoch,
       id: const Uuid().v4(),
       text: message.text,
+      isDeleted: true
     );
 
     _addMessage(textMessage);

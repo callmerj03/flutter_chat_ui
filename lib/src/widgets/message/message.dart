@@ -66,7 +66,7 @@ class Message extends StatelessWidget {
 
   //
   final List<Map> emojiList;
-  final Function(String?, types.Message ) emojiClick;
+  final Function(String?, types.Message) emojiClick;
   final List<MenuActionModel> menuActionModel;
 
   final int? index;
@@ -213,7 +213,7 @@ class Message extends StatelessWidget {
         : Stack(
             children: [
               Container(
-                margin: showReaction == true ? EdgeInsets.only(bottom: 14) : null,
+                margin: showReaction == true ? EdgeInsets.only(bottom: 16) : null,
                 decoration: BoxDecoration(
                   borderRadius: borderRadius,
                   color: !currentUserIsAuthor || message.type == types.MessageType.image
@@ -226,24 +226,24 @@ class Message extends StatelessWidget {
                 ),
               ),
               if (showReaction == true)
-                if(message.reaction != null)
-                if(message.reaction.toString().isNotEmpty)
-                Positioned(
-                  bottom: 0,
-                  left: !currentUserIsAuthor ? null : 16,
-                  right: currentUserIsAuthor ? null : 16,
-                  child: Container(
-                    height: 28,
-                    width: 28,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(100)),
-                      color: currentUserIsAuthor
-                          ? InheritedChatTheme.of(context).theme.secondaryColor
-                          : InheritedChatTheme.of(context).theme.primaryColor,
+                if (message.reaction != null)
+                  if (message.reaction.toString().isNotEmpty)
+                    Positioned(
+                      bottom: 0,
+                      left: !currentUserIsAuthor ? null : 8,
+                      right: currentUserIsAuthor ? null : 8,
+                      child: Container(
+                        height: 28,
+                        width: 28,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(100)),
+                          color: currentUserIsAuthor
+                              ? InheritedChatTheme.of(context).theme.secondaryColor
+                              : InheritedChatTheme.of(context).theme.primaryColor,
+                        ),
+                        child: Center(child: Text(message.reaction!)),
+                      ),
                     ),
-                    child: Center(child: Text(message.reaction!)),
-                  ),
-                ),
             ],
           );
 
@@ -340,6 +340,7 @@ class Message extends StatelessWidget {
     final query = MediaQuery.of(context);
     final user = InheritedUser.of(context).user;
     final currentUserIsAuthor = user.id == message.author.id;
+
     final enlargeEmojis = emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
         message is types.TextMessage &&
         isConsistsOfEmojis(
@@ -347,6 +348,7 @@ class Message extends StatelessWidget {
           message as types.TextMessage,
         );
     final messageBorderRadius = InheritedChatTheme.of(context).theme.messageBorderRadius;
+
     final borderRadius = bubbleRtlAlignment == BubbleRtlAlignment.left
         ? BorderRadiusDirectional.only(
             bottomEnd: Radius.circular(
@@ -402,61 +404,73 @@ class Message extends StatelessWidget {
             constraints: BoxConstraints(
               maxWidth: messageWidth.toDouble(),
             ),
-            child: ContextMenuWidget(
-                chatReaction: message.reaction,
-                menuProvider: (MenuRequest request) {
-                  if (menuActionModel == null) {
-                    return null;
-                  }
-                  if (menuActionModel.length == 0) {
-                    return null;
-                  }
-
-                  return Menu(
-                    children: [
-                      for (MenuActionModel item in menuActionModel)
-                        MenuAction(
-                          title: '${item.title}',
-                          state: MenuActionState.none,
-                          callback: () {
-                            print("wwwooo>>>>");
-                            if (item.callback != null) {
-                              item.callback!(message);
-                            }
-                          },
-                          image: item.icon == null ? null : MenuImage.icon(item.icon!),
-                        ),
-                    ],
-                  );
-                },
-                emojiList: emojiList,
-                liftBuilder: message is types.TextMessage == false
-                    ? (context, child) {
-                        return messageView(context, currentUserIsAuthor, false, showReaction: false);
+            child: message.isDeleted == true
+                ? Container(
+                    decoration: BoxDecoration(
+                      borderRadius: borderRadius,
+                      color: !currentUserIsAuthor || message.type == types.MessageType.image
+                          ? InheritedChatTheme.of(context).theme.secondaryColor
+                          : InheritedChatTheme.of(context).theme.primaryColor,
+                    ),
+                    child: ClipRRect(borderRadius: borderRadius, child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+                        child: Text(
+                            "This meessage is deleted",style: TextStyle(color: Colors.white),))),
+                  )
+                : ContextMenuWidget(
+                    chatReaction: message.reaction,
+                    menuProvider: (MenuRequest request) {
+                      if (menuActionModel == null) {
+                        return null;
                       }
-                    : (message as types.TextMessage).text.length < 500
+                      if (menuActionModel.length == 0) {
+                        return null;
+                      }
+                      return Menu(
+                        children: [
+                          for (MenuActionModel item in menuActionModel)
+                            MenuAction(
+                              title: '${item.title}',
+                              state: MenuActionState.none,
+                              callback: () {
+                                print("wwwooo>>>>");
+                                if (item.callback != null) {
+                                  item.callback!(message);
+                                }
+                              },
+                              image: item.icon == null ? null : MenuImage.icon(item.icon!),
+                            ),
+                        ],
+                      );
+                    },
+                    emojiList: emojiList,
+                    liftBuilder: message is types.TextMessage == false
                         ? (context, child) {
                             return messageView(context, currentUserIsAuthor, false, showReaction: false);
                           }
-                        : (context, child) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: EdgeInsets.all(16),
-                              child: Text(
-                                "${(message as types.TextMessage).text}",
-                                style: TextStyle(fontSize: 16, color: Colors.white),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 20,
-                              ),
-                            );
-                          },
-                emojiClick: (emoji) {
-                  emojiClick(emoji, message);
-                },
-                child: messageView(context, currentUserIsAuthor, false)),
+                        : (message as types.TextMessage).text.length < 500
+                            ? (context, child) {
+                                return messageView(context, currentUserIsAuthor, false, showReaction: false);
+                              }
+                            : (context, child) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: EdgeInsets.all(16),
+                                  child: Text(
+                                    "${(message as types.TextMessage).text}",
+                                    style: TextStyle(fontSize: 16, color: Colors.white),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 20,
+                                  ),
+                                );
+                              },
+                    emojiClick: (emoji) {
+                      emojiClick(emoji, message);
+                    },
+                    child: messageView(context, currentUserIsAuthor, false)),
           ),
           if (currentUserIsAuthor && !isLeftStatus) _statusIcon(context),
         ],

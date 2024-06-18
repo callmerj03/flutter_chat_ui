@@ -24,6 +24,7 @@
     "name": "madrid",
     "size": 585000,
     "status": "seen",
+    "isDeleted": true,
     "type": "image",
     "uri": "https://source.unsplash.com/WBGjg0DsO_g/1920x1280",
     "width": 1920
