@@ -61,7 +61,8 @@ class Message extends StatelessWidget {
     required this.emojiList,
     required this.emojiClick,
     required this.menuActionModel,
-    required this.index, required this.firebaseUserId,
+    required this.index,
+    required this.firebaseUserId,
   });
 
   //
@@ -225,10 +226,7 @@ class Message extends StatelessWidget {
   }
 
   String getUserReaction() {
-
-
-    if(message.reaction == null)
-      return "";
+    if (message.reaction == null) return "";
 
     var list = chatReactionGet();
     if (list == null) return "";
@@ -251,7 +249,7 @@ class Message extends StatelessWidget {
         : Stack(
             children: [
               Container(
-                margin: isChatReactionEmpty() == false && showReaction? EdgeInsets.only(bottom: 20) : null,
+                margin: isChatReactionEmpty() == false && showReaction == true ? EdgeInsets.only(bottom: 20) : null,
                 decoration: BoxDecoration(
                   borderRadius: borderRadius,
                   color: !currentUserIsAuthor || message.type == types.MessageType.image
@@ -293,7 +291,12 @@ class Message extends StatelessWidget {
                                     padding: const EdgeInsets.only(left: 8.0),
                                     child: Text(
                                       "${chatReactionGet().length}",
-                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: !currentUserIsAuthor
+                                            ? InheritedChatTheme.of(context).theme.secondaryColor
+                                            : InheritedChatTheme.of(context).theme.primaryColor,
+                                      ),
                                     )),
                             ],
                           ),
@@ -489,9 +492,6 @@ class Message extends StatelessWidget {
                                   title: '${item.title}',
                                   state: MenuActionState.none,
                                   callback: () {
-
-                                    print("oyeoye>> ${getUserReaction()}");
-
                                     if (item.callback != null) {
                                       item.callback!(message, item.title!);
                                     }
