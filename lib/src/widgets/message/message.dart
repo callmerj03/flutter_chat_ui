@@ -61,7 +61,7 @@ class Message extends StatelessWidget {
     required this.emojiList,
     required this.emojiClick,
     required this.menuActionModel,
-    required this.index,
+    required this.index, required this.firebaseUserId,
   });
 
   //
@@ -70,6 +70,8 @@ class Message extends StatelessWidget {
   final List<MenuActionModel> menuActionModel;
 
   final int? index;
+
+  final String? firebaseUserId;
 
   /// Build an audio message inside predefined bubble.
   final Widget Function(types.AudioMessage, {required int messageWidth})? audioMessageBuilder;
@@ -206,6 +208,42 @@ class Message extends StatelessWidget {
           )
       : const SizedBox(width: 40);
 
+  List<dynamic> chatReactionGet() {
+    return message.reaction as List<dynamic>;
+  }
+
+  bool isChatReactionEmpty() {
+    bool isEmpty = true;
+
+    if (message.reaction != null) {
+      if (chatReactionGet().length > 0) {
+        isEmpty = false;
+      }
+    }
+
+    return isEmpty;
+  }
+
+  String getUserReaction() {
+
+
+    if(message.reaction == null)
+      return "";
+
+    var list = chatReactionGet();
+    if (list == null) return "";
+
+    if (list.length == 0) return "";
+
+    var selectedList = list.where((element) => element['userId'] == firebaseUserId).toList();
+
+    if (selectedList.length > 0) {
+      return selectedList[0]['reaction'];
+    } else {
+      return "";
+    }
+  }
+
   Widget _bubbleBuilder(BuildContext context, BorderRadius borderRadius, bool currentUserIsAuthor, bool enlargeEmojis,
       {bool showReaction = true}) {
     final defaultMessage = (enlargeEmojis && hideBackgroundOnEmojiMessages)
@@ -213,7 +251,7 @@ class Message extends StatelessWidget {
         : Stack(
             children: [
               Container(
-                margin: showReaction == true ? EdgeInsets.only(bottom: 16) : null,
+                margin: isChatReactionEmpty() == false && showReaction? EdgeInsets.only(bottom: 20) : null,
                 decoration: BoxDecoration(
                   borderRadius: borderRadius,
                   color: !currentUserIsAuthor || message.type == types.MessageType.image
@@ -227,21 +265,39 @@ class Message extends StatelessWidget {
               ),
               if (showReaction == true)
                 if (message.reaction != null)
-                  if (message.reaction.toString().isNotEmpty)
+                  if (chatReactionGet().length > 0)
                     Positioned(
                       bottom: 0,
                       left: !currentUserIsAuthor ? null : 8,
                       right: currentUserIsAuthor ? null : 8,
                       child: Container(
                         height: 28,
-                        width: 28,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(100)),
                           color: currentUserIsAuthor
                               ? InheritedChatTheme.of(context).theme.secondaryColor
                               : InheritedChatTheme.of(context).theme.primaryColor,
                         ),
-                        child: Center(child: Text(message.reaction!)),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Row(
+                            children: [
+                              Center(child: Text(chatReactionGet()[0]['reaction'])),
+                              if (chatReactionGet().length > 1)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4.0),
+                                  child: Text(chatReactionGet()[1]['reaction']),
+                                ),
+                              if (chatReactionGet().length > 1)
+                                Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Text(
+                                      "${chatReactionGet().length}",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+                                    )),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
             ],
@@ -422,7 +478,7 @@ class Message extends StatelessWidget {
                             ))),
                   )
                 : ContextMenuWidget(
-                    chatReaction: message.reaction,
+                    chatReaction: getUserReaction(),
                     menuProvider: (MenuRequest request) {
                       return Menu(
                         children: [
@@ -433,6 +489,9 @@ class Message extends StatelessWidget {
                                   title: '${item.title}',
                                   state: MenuActionState.none,
                                   callback: () {
+
+                                    print("oyeoye>> ${getUserReaction()}");
+
                                     if (item.callback != null) {
                                       item.callback!(message, item.title!);
                                     }

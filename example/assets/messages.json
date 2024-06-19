@@ -78,6 +78,12 @@
     "createdAt": 1655624464000,
     "id": "38681a33-2563-42aa-957b-cfc12f791d16",
     "status": "seen",
+    "reaction" : [
+      {
+        "reaction" : "😍",
+        "userId" : "82091008-a484-4a89-ae75-a22bf8d6f3ac"
+      }
+    ],
     "text": "Matt, where is my Madrid guide?",
     "type": "text"
   },
@@ -91,6 +97,16 @@
     "id": "113bb2e8-f74e-42cd-aa30-4085a0f52c58",
     "status": "seen",
     "text": "Awesome! 😍",
+    "reaction" : [
+      {
+        "reaction" : "😍",
+        "userId" : "82091008-a484-4a89-ae75-a22bf8d6f3ac"
+      },
+      {
+        "reaction" : "🥰",
+        "userId" : "e52552f4-835d-4dbe-ba77-b076e659774d"
+      }
+    ],
     "type": "text"
   },
   {
@@ -117,7 +133,13 @@
     "id": "afc2269a-374b-4382-8864-b3b60d1e8cd7",
     "status": "seen",
     "text": "Yeah! Together with Demna, Mark Hamill and others 🥰",
-    "type": "text"
+    "type": "text",
+    "reaction" : [
+      {
+        "reaction" : "👍",
+        "userId" : "82091008-a484-4a89-ae75-a22bf8d6f3ac"
+      }
+    ]
   },
   {
     "author": {

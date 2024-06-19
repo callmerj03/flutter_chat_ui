@@ -72,6 +72,7 @@ class Chat extends StatefulWidget {
     this.l10n = const ChatL10nEn(),
     this.listBottomWidget,
     required this.messages,
+    required this.firebaseUserId,
     this.nameBuilder,
     this.onAttachmentPressed,
     this.onAvatarTap,
@@ -114,6 +115,8 @@ class Chat extends StatefulWidget {
   final List<Map> emojiList;
   final Function(String?, types.Message) emojiClick;
   final List<MenuActionModel> menuActionModel;
+
+  final String? firebaseUserId;
 
   /// See [Message.audioMessageBuilder].
   final Widget Function(types.AudioMessage, {required int messageWidth})? audioMessageBuilder;
@@ -520,7 +523,7 @@ class ChatState extends State<Chat> {
           userAgent: widget.userAgent,
           videoMessageBuilder: widget.videoMessageBuilder,
           index: index,
-          emojiClick: widget.emojiClick,
+          emojiClick: widget.emojiClick, firebaseUserId: widget.firebaseUserId,
         );
         messageWidget = widget.slidableMessageBuilder == null ? msgWidget : widget.slidableMessageBuilder!(message, msgWidget);
       }

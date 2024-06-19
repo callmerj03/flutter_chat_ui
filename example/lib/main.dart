@@ -225,11 +225,7 @@ class _ChatPageState extends State<ChatPage> {
       typesMessage: [
         types.MessageType.text,
       ],
-      authorIds: [
-        '4c2307ba-3d40-442f-b1ff-b271f63904ca',
-        'e52552f4-835d-4dbe-ba77-b076e659774d',
-        '82091008-a484-4a89-ae75-a22bf8d6f3ac'
-      ],
+      authorIds: ['4c2307ba-3d40-442f-b1ff-b271f63904ca', 'e52552f4-835d-4dbe-ba77-b076e659774d', '82091008-a484-4a89-ae75-a22bf8d6f3ac'],
     ));
 
     MenuActionModelList.add(MenuActionModel(
@@ -270,8 +266,6 @@ class _ChatPageState extends State<ChatPage> {
         '82091008-a484-4a89-ae75-a22bf8d6f3ac',
       ],
     ));
-
-
 
     setState(() {
       _messages = messages;
@@ -322,6 +316,7 @@ class _ChatPageState extends State<ChatPage> {
                   ],
                   menuActionModel: MenuActionModelList,
                   emojiClick: emojiClick,
+                  firebaseUserId: "82091008-a484-4a89-ae75-a22bf8d6f3ac",
                   // textController: _controller,
                 ),
               ),
