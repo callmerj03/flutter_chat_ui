@@ -293,9 +293,7 @@ class Message extends StatelessWidget {
                                       "${chatReactionGet().length}",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: !currentUserIsAuthor
-                                            ? InheritedChatTheme.of(context).theme.secondaryColor
-                                            : InheritedChatTheme.of(context).theme.primaryColor,
+                                        color: Colors.white,
                                       ),
                                     )),
                             ],
