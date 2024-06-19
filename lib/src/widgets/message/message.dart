@@ -404,7 +404,6 @@ class Message extends StatelessWidget {
             constraints: BoxConstraints(
               maxWidth: messageWidth.toDouble(),
             ),
-
             child: message.isDeleted == true
                 ? Container(
                     decoration: BoxDecoration(
@@ -413,34 +412,33 @@ class Message extends StatelessWidget {
                           ? InheritedChatTheme.of(context).theme.secondaryColor
                           : InheritedChatTheme.of(context).theme.primaryColor,
                     ),
-                    child: ClipRRect(borderRadius: borderRadius, child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16,vertical: 8),
-                        child: Text(
-                            "This meessage is deleted",style: TextStyle(color: Colors.white),))),
+                    child: ClipRRect(
+                        borderRadius: borderRadius,
+                        child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Text(
+                              "This meessage is deleted",
+                              style: TextStyle(color: Colors.white),
+                            ))),
                   )
                 : ContextMenuWidget(
                     chatReaction: message.reaction,
                     menuProvider: (MenuRequest request) {
-                      if (menuActionModel == null) {
-                        return null;
-                      }
-                      if (menuActionModel.length == 0) {
-                        return null;
-                      }
                       return Menu(
                         children: [
                           for (MenuActionModel item in menuActionModel)
-                            MenuAction(
-                              title: '${item.title}',
-                              state: MenuActionState.none,
-                              callback: () {
-                                print("wwwooo>>>>");
-                                if (item.callback != null) {
-                                  item.callback!(message);
-                                }
-                              },
-                              image: item.icon == null ? null : MenuImage.icon(item.icon!),
-                            ),
+                            if (item.typesMessage.where((element) => element == message.type).toList().isNotEmpty)
+                              if (item.authorIds.where((element) => element == message.author.id).toList().isNotEmpty)
+                                MenuAction(
+                                  title: '${item.title}',
+                                  state: MenuActionState.none,
+                                  callback: () {
+                                    if (item.callback != null) {
+                                      item.callback!(message, item.title!);
+                                    }
+                                  },
+                                  image: item.icon == null ? null : MenuImage.icon(item.icon!),
+                                ),
                         ],
                       );
                     },

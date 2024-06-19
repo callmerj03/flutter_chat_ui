@@ -205,28 +205,81 @@ class _ChatPageState extends State<ChatPage> {
 
   void _handleSendPressed(types.PartialText message) {
     final textMessage = types.TextMessage(
-      author: _user,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: const Uuid().v4(),
-      text: message.text,
-      isDeleted: true
-    );
+        author: _user, createdAt: DateTime.now().millisecondsSinceEpoch, id: const Uuid().v4(), text: message.text, isDeleted: true);
 
     _addMessage(textMessage);
   }
 
+  List<MenuActionModel> MenuActionModelList = [];
+
   void _loadMessages() async {
     final response = await rootBundle.loadString('assets/messages.json');
     final messages = (jsonDecode(response) as List).map((e) => types.Message.fromJson(e as Map<String, dynamic>)).toList();
+
+    MenuActionModelList.add(MenuActionModel(
+      title: "Copy",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icons.copy,
+      typesMessage: [
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '4c2307ba-3d40-442f-b1ff-b271f63904ca',
+        'e52552f4-835d-4dbe-ba77-b076e659774d',
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac'
+      ],
+    ));
+
+    MenuActionModelList.add(MenuActionModel(
+      title: "Save",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icons.download,
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+      ],
+      authorIds: [
+        '4c2307ba-3d40-442f-b1ff-b271f63904ca',
+        'e52552f4-835d-4dbe-ba77-b076e659774d',
+      ],
+    ));
+
+    MenuActionModelList.add(MenuActionModel(
+      title: "Delete",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icons.delete,
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+        types.MessageType.system,
+        types.MessageType.unsupported,
+        types.MessageType.custom,
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+      ],
+    ));
+
+
 
     setState(() {
       _messages = messages;
     });
   }
 
-  Future<void> emojiClick(String? emojiValue , types.Message message) async {
+  Future<void> emojiClick(String? emojiValue, types.Message message) async {
     print("pelliii>>>||| <<<<>>> ${emojiValue} ${message}");
-
 
     if (emojiValue != null) {
       Fluttertoast.showToast(
@@ -265,14 +318,9 @@ class _ChatPageState extends State<ChatPage> {
                     {'emoji': '👍'},
                     {'emoji': '👍'},
                     {'emoji': '👍'},
-                    {'emoji': '👍'},
                     {'emoji': null},
                   ],
-                  menuActionModel: [
-                    MenuActionModel(title: "Copy", callback: (message) {}, icon: Icons.copy),
-                    MenuActionModel(title: "Forward", callback: (message) {}, icon: Icons.send),
-                    MenuActionModel(title: "Delete", callback: (message) {}, icon: Icons.delete),
-                  ],
+                  menuActionModel: MenuActionModelList,
                   emojiClick: emojiClick,
                   // textController: _controller,
                 ),
@@ -282,6 +330,3 @@ class _ChatPageState extends State<ChatPage> {
         ),
       );
 }
-
-
-
