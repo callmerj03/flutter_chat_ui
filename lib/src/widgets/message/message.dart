@@ -63,6 +63,7 @@ class Message extends StatelessWidget {
     required this.menuActionModel,
     required this.index,
     required this.firebaseUserId,
+    required this.backmanage,
   });
 
   //
@@ -73,6 +74,8 @@ class Message extends StatelessWidget {
   final int? index;
 
   final String? firebaseUserId;
+
+  final Function(bool) backmanage;
 
   /// Build an audio message inside predefined bubble.
   final Widget Function(types.AudioMessage, {required int messageWidth})? audioMessageBuilder;
@@ -526,6 +529,7 @@ class Message extends StatelessWidget {
                     emojiClick: (emoji) {
                       emojiClick(emoji, message);
                     },
+                    backmanage: backmanage,
                     child: messageView(context, currentUserIsAuthor, false)),
           ),
           if (currentUserIsAuthor && !isLeftStatus) _statusIcon(context),

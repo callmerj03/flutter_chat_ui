@@ -109,6 +109,7 @@ class Chat extends StatefulWidget {
     this.isLeftStatus = false,
     this.messageWidthRatio = 0.72,
     required this.emojiClick,
+    required this.backmanage,
     // required this.textController,
   });
 
@@ -117,6 +118,8 @@ class Chat extends StatefulWidget {
   final List<MenuActionModel> menuActionModel;
 
   final String? firebaseUserId;
+
+  final Function(bool) backmanage;
 
   /// See [Message.audioMessageBuilder].
   final Widget Function(types.AudioMessage, {required int messageWidth})? audioMessageBuilder;
@@ -523,7 +526,9 @@ class ChatState extends State<Chat> {
           userAgent: widget.userAgent,
           videoMessageBuilder: widget.videoMessageBuilder,
           index: index,
-          emojiClick: widget.emojiClick, firebaseUserId: widget.firebaseUserId,
+          emojiClick: widget.emojiClick,
+          firebaseUserId: widget.firebaseUserId,
+          backmanage: widget.backmanage,
         );
         messageWidget = widget.slidableMessageBuilder == null ? msgWidget : widget.slidableMessageBuilder!(message, msgWidget);
       }

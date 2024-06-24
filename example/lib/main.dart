@@ -317,6 +317,7 @@ class _ChatPageState extends State<ChatPage> {
                   menuActionModel: MenuActionModelList,
                   emojiClick: emojiClick,
                   firebaseUserId: "82091008-a484-4a89-ae75-a22bf8d6f3ac",
+                  backmanage: (bool) {},
                   // textController: _controller,
                 ),
               ),
