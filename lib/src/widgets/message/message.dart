@@ -484,6 +484,8 @@ class Message extends StatelessWidget {
                 : ContextMenuWidget(
                     chatReaction: getUserReaction(),
                     menuProvider: (MenuRequest request) {
+
+                      backmanage(false);
                       return Menu(
                         children: [
                           for (MenuActionModel item in menuActionModel)
