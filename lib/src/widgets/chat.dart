@@ -5,30 +5,17 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
 import 'package:scroll_to_index/scroll_to_index.dart';
-import 'package:super_context_menu/super_context_menu.dart';
 
 import '../../flutter_chat_ui.dart';
-import '../chat_l10n.dart';
-import '../chat_theme.dart';
 import '../conditional/conditional.dart';
-import '../models/bubble_rtl_alignment.dart';
 import '../models/date_header.dart';
-import '../models/menu_action_model.dart';
 import '../models/message_spacer.dart';
 import '../models/preview_image.dart';
 import '../models/unread_header_data.dart';
 import '../util.dart';
-import 'chat_list.dart';
-import 'image_gallery.dart';
-import 'input/input.dart';
-import 'message/message.dart';
-import 'message/system_message.dart';
-import 'message/text_message.dart';
 import 'state/inherited_chat_theme.dart';
 import 'state/inherited_l10n.dart';
 import 'state/inherited_user.dart';
-import 'typing_indicator.dart';
-import 'unread_header.dart';
 
 /// Keep track of all the auto scroll indices by their respective message's id to allow animating to them.
 final Map<String, int> chatMessageAutoScrollIndexById = {};
@@ -110,10 +97,12 @@ class Chat extends StatefulWidget {
     this.messageWidthRatio = 0.72,
     required this.emojiClick,
     required this.backmanage,
+    required this.isDarkMode,
     // required this.textController,
   });
 
   final List<Map> emojiList;
+  final bool isDarkMode;
   final Function(String?, types.Message) emojiClick;
   final List<MenuActionModel> menuActionModel;
 
@@ -483,6 +472,7 @@ class ChatState extends State<Chat> {
                 maxWidth,
               ).floor();
         final Widget msgWidget = Message(
+          isDarkMode: widget.isDarkMode,
           emojiList: widget.emojiList,
           menuActionModel: widget.menuActionModel,
           audioMessageBuilder: widget.audioMessageBuilder,

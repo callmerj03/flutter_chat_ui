@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:super_context_menu/super_context_menu.dart';
@@ -64,6 +63,7 @@ class Message extends StatelessWidget {
     required this.index,
     required this.firebaseUserId,
     required this.backmanage,
+    required this.isDarkMode,
   });
 
   //
@@ -72,6 +72,7 @@ class Message extends StatelessWidget {
   final List<MenuActionModel> menuActionModel;
 
   final int? index;
+  final bool isDarkMode;
 
   final String? firebaseUserId;
 
@@ -484,7 +485,6 @@ class Message extends StatelessWidget {
                 : ContextMenuWidget(
                     chatReaction: getUserReaction(),
                     menuProvider: (MenuRequest request) {
-
                       backmanage(false);
                       return Menu(
                         children: [
@@ -532,6 +532,7 @@ class Message extends StatelessWidget {
                       emojiClick(emoji, message);
                     },
                     backmanage: backmanage,
+                    isDarkMode: isDarkMode,
                     child: messageView(context, currentUserIsAuthor, false)),
           ),
           if (currentUserIsAuthor && !isLeftStatus) _statusIcon(context),

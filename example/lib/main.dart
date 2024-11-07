@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -317,7 +316,7 @@ class _ChatPageState extends State<ChatPage> {
                   menuActionModel: MenuActionModelList,
                   emojiClick: emojiClick,
                   firebaseUserId: "82091008-a484-4a89-ae75-a22bf8d6f3ac",
-                  backmanage: (bool) {},
+                  backmanage: (bool) {}, isDarkMode: true,
                   // textController: _controller,
                 ),
               ),
