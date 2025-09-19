@@ -204,7 +204,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void _handleSendPressed(types.PartialText message) {
     final textMessage = types.TextMessage(
-        author: _user, createdAt: DateTime.now().millisecondsSinceEpoch, id: const Uuid().v4(), text: message.text, isDeleted: true);
+        author: _user, createdAt: DateTime.now().millisecondsSinceEpoch, id: const Uuid().v4(), text: message.text, isDeleted: false);
 
     _addMessage(textMessage);
   }
@@ -316,7 +316,8 @@ class _ChatPageState extends State<ChatPage> {
                   menuActionModel: MenuActionModelList,
                   emojiClick: emojiClick,
                   firebaseUserId: "82091008-a484-4a89-ae75-a22bf8d6f3ac",
-                  backmanage: (bool) {}, isDarkMode: true,
+                  backmanage: (bool) {},
+                  isDarkMode: true,
                   // textController: _controller,
                 ),
               ),
