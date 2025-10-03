@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:super_context_menu/super_context_menu.dart';
+import 'package:super_context_menu/super_drag_and_drop/src/drag_configuration.dart';
+import 'package:super_context_menu/super_drag_and_drop/src/draggable_widget.dart';
+import 'package:super_context_menu/super_drag_and_drop/src/model.dart';
 
 // import 'package:super_context_menu/super_context_menu.dart';==
 import 'package:visibility_detector/visibility_detector.dart';
@@ -463,81 +467,83 @@ class Message extends StatelessWidget {
           if (!currentUserIsAuthor && showUserAvatars) _avatarBuilder(),
           if (currentUserIsAuthor && isLeftStatus) _statusIcon(context),
           ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: messageWidth.toDouble(),
-              ),
-              child: message.isDeleted == true
-                  ? Container(
-                      decoration: BoxDecoration(
+            constraints: BoxConstraints(
+              maxWidth: messageWidth.toDouble(),
+            ),
+            child: message.isDeleted == true
+                ? Container(
+                    decoration: BoxDecoration(
+                      borderRadius: borderRadius,
+                      color: !currentUserIsAuthor || message.type == types.MessageType.image
+                          ? InheritedChatTheme.of(context).theme.secondaryColor
+                          : InheritedChatTheme.of(context).theme.primaryColor,
+                    ),
+                    child: ClipRRect(
                         borderRadius: borderRadius,
-                        color: !currentUserIsAuthor || message.type == types.MessageType.image
-                            ? InheritedChatTheme.of(context).theme.secondaryColor
-                            : InheritedChatTheme.of(context).theme.primaryColor,
-                      ),
-                      child: ClipRRect(
-                          borderRadius: borderRadius,
-                          child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              child: Text(
-                                "This meessage is deleted",
-                                style: TextStyle(color: Colors.white),
-                              ))),
-                    )
-                  : messageView(context, currentUserIsAuthor, false)
-
-              // ContextMenuWidget(
-              //         chatReaction: getUserReaction(),
-              //         menuProvider: (MenuRequest request) {
-              //           backmanage(false);
-              //           return Menu(
-              //             children: [
-              //               for (MenuActionModel item in menuActionModel)
-              //                 if (item.typesMessage.where((element) => element == message.type).toList().isNotEmpty)
-              //                   if (item.authorIds.where((element) => element == message.author.id).toList().isNotEmpty)
-              //                     MenuAction(
-              //                       title: '${item.title}',
-              //                       state: MenuActionState.none,
-              //                       callback: () {
-              //                         if (item.callback != null) {
-              //                           item.callback!(message, item.title!);
-              //                         }
-              //                       },
-              //                       image: item.icon == null ? null : MenuImage.icon(item.icon!),
-              //                     ),
-              //             ],
-              //           );
-              //         },
-              //         emojiList: emojiList,
-              //         liftBuilder: message is types.TextMessage == false
-              //             ? (context, child) {
-              //                 return messageView(context, currentUserIsAuthor, false, showReaction: false);
-              //               }
-              //             : (message as types.TextMessage).text.length < 500
-              //                 ? (context, child) {
-              //                     return messageView(context, currentUserIsAuthor, false, showReaction: false);
-              //                   }
-              //                 : (context, child) {
-              //                     return Container(
-              //                       decoration: BoxDecoration(
-              //                         color: Theme.of(context).primaryColor,
-              //                         borderRadius: BorderRadius.circular(12),
-              //                       ),
-              //                       padding: EdgeInsets.all(16),
-              //                       child: Text(
-              //                         "${(message as types.TextMessage).text}",
-              //                         style: TextStyle(fontSize: 16, color: Colors.white),
-              //                         overflow: TextOverflow.ellipsis,
-              //                         maxLines: 20,
-              //                       ),
-              //                     );
-              //                   },
-              //         emojiClick: (emoji) {
-              //           emojiClick(emoji, message);
-              //         },
-              //         backmanage: backmanage,
-              //         isDarkMode: isDarkMode,
-              //         child: messageView(context, currentUserIsAuthor, false)),
-              ),
+                        child: Text(
+                          "This meessage is deleted",
+                          style: TextStyle(color: Colors.white),
+                        )),
+                  )
+                : DragItemWidget(
+                    allowedOperations: () => [DropOperation.copy],
+                    dragItemProvider: (_) => DragItem(localData: ''),
+                    child: DraggableWidget(
+                      child: ContextMenuWidget(
+                          chatReaction: getUserReaction(),
+                          menuProvider: (MenuRequest request) {
+                            backmanage(false);
+                            return Menu(
+                              children: [
+                                for (MenuActionModel item in menuActionModel)
+                                  if (item.typesMessage.where((element) => element == message.type).toList().isNotEmpty)
+                                    if (item.authorIds.where((element) => element == message.author.id).toList().isNotEmpty)
+                                      MenuAction(
+                                        title: '${item.title}',
+                                        state: MenuActionState.none,
+                                        callback: () {
+                                          if (item.callback != null) {
+                                            item.callback!(message, item.title!);
+                                          }
+                                        },
+                                        image: item.icon == null ? null : MenuImage.icon(item.icon!),
+                                      ),
+                              ],
+                            );
+                          },
+                          emojiList: emojiList,
+                          liftBuilder: message is types.TextMessage == false
+                              ? (context, child) {
+                                  return messageView(context, currentUserIsAuthor, false, showReaction: false);
+                                }
+                              : (message as types.TextMessage).text.length < 500
+                                  ? (context, child) {
+                                      return messageView(context, currentUserIsAuthor, false, showReaction: false);
+                                    }
+                                  : (context, child) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).primaryColor,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        padding: EdgeInsets.all(16),
+                                        child: Text(
+                                          "${(message as types.TextMessage).text}",
+                                          style: TextStyle(fontSize: 16, color: Colors.white),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 20,
+                                        ),
+                                      );
+                                    },
+                          emojiClick: (emoji) {
+                            emojiClick(emoji, message);
+                          },
+                          backmanage: backmanage,
+                          isDarkMode: isDarkMode,
+                          child: messageView(context, currentUserIsAuthor, false)),
+                    ),
+                  ),
+          ),
           if (currentUserIsAuthor && !isLeftStatus) _statusIcon(context),
         ],
       ),
