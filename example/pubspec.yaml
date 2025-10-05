@@ -49,7 +49,7 @@ dependencies:
   uuid: ^4.1.0
   fluttertoast: ^8.2.6
 #  keyboard_emoji_picker: ^1.0.3
-#  emoji_picker_flutter: ^2.2.0
+  emoji_picker_flutter: ^4.3.0
 
 
 dev_dependencies:

@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -213,7 +214,11 @@ class _ChatPageState extends State<ChatPage> {
 
   void _loadMessages() async {
     final response = await rootBundle.loadString('assets/messages.json');
+
     final messages = (jsonDecode(response) as List).map((e) => types.Message.fromJson(e as Map<String, dynamic>)).toList();
+
+
+
 
     MenuActionModelList.add(MenuActionModel(
       title: "Copy",
@@ -311,10 +316,15 @@ class _ChatPageState extends State<ChatPage> {
                     {'emoji': '👍'},
                     {'emoji': '👍'},
                     {'emoji': '👍'},
+                    {'emoji': '👍'},
                     {'emoji': null},
                   ],
                   menuActionModel: MenuActionModelList,
                   emojiClick: emojiClick,
+                  textMessageOptions: const TextMessageOptions(
+                    isTextSelectable: false,
+                  ),
+
                   firebaseUserId: "82091008-a484-4a89-ae75-a22bf8d6f3ac",
                   backmanage: (bool) {},
                   isDarkMode: true,

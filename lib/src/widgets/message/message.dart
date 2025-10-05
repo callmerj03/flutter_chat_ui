@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-// import 'package:super_context_menu/super_context_menu.dart';
-// import 'package:super_context_menu/super_drag_and_drop/src/drag_configuration.dart';
-// import 'package:super_context_menu/super_drag_and_drop/src/draggable_widget.dart';
-// import 'package:super_context_menu/super_drag_and_drop/src/model.dart';
 
 import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../../flutter_chat_ui.dart';
+import '../../IOSContextMenu.dart';
 import '../../conditional/conditional.dart';
 import '../../models/bubble_rtl_alignment.dart';
 import '../../models/emoji_enlargement_behavior.dart';
@@ -250,6 +248,71 @@ class Message extends StatelessWidget {
     }
   }
 
+  Widget _messageBuilder() {
+    switch (message.type) {
+      case types.MessageType.audio:
+        final audioMessage = message as types.AudioMessage;
+        return audioMessageBuilder != null ? audioMessageBuilder!(audioMessage, messageWidth: messageWidth) : const SizedBox();
+      case types.MessageType.custom:
+        final customMessage = message as types.CustomMessage;
+        return customMessageBuilder != null ? customMessageBuilder!(customMessage, messageWidth: messageWidth) : const SizedBox();
+      case types.MessageType.file:
+        final fileMessage = message as types.FileMessage;
+        return fileMessageBuilder != null
+            ? fileMessageBuilder!(fileMessage, messageWidth: messageWidth)
+            : FileMessage(message: fileMessage);
+      case types.MessageType.image:
+        final imageMessage = message as types.ImageMessage;
+        return imageMessageBuilder != null
+            ? imageMessageBuilder!(imageMessage, messageWidth: messageWidth)
+            : ImageMessage(
+                imageHeaders: imageHeaders,
+                imageProviderBuilder: imageProviderBuilder,
+                message: imageMessage,
+                messageWidth: messageWidth,
+              );
+      case types.MessageType.text:
+        final textMessage = message as types.TextMessage;
+        return textMessageBuilder != null
+            ? textMessageBuilder!(
+                textMessage,
+                messageWidth: messageWidth,
+                showName: showName,
+              )
+            : TextMessage(
+                emojiEnlargementBehavior: emojiEnlargementBehavior,
+                hideBackgroundOnEmojiMessages: hideBackgroundOnEmojiMessages,
+                message: textMessage,
+                nameBuilder: nameBuilder,
+                onPreviewDataFetched: onPreviewDataFetched,
+                options: textMessageOptions,
+                showName: showName,
+                usePreviewData: usePreviewData,
+                userAgent: userAgent,
+              );
+      case types.MessageType.video:
+        final videoMessage = message as types.VideoMessage;
+        return videoMessageBuilder != null ? videoMessageBuilder!(videoMessage, messageWidth: messageWidth) : const SizedBox();
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Widget _statusIcon(
+    BuildContext context,
+  ) {
+    if (!showStatus) return const SizedBox.shrink();
+
+    return Padding(
+      padding: InheritedChatTheme.of(context).theme.statusIconPadding,
+      child: GestureDetector(
+        onLongPress: () => onMessageStatusLongPress?.call(context, message),
+        onTap: () => onMessageStatusTap?.call(context, message),
+        child: customStatusBuilder != null ? customStatusBuilder!(message, context: context) : MessageStatus(status: message.status),
+      ),
+    );
+  }
+
   Widget _bubbleBuilder(BuildContext context, BorderRadius borderRadius, bool currentUserIsAuthor, bool enlargeEmojis,
       {bool showReaction = true}) {
     final defaultMessage = (enlargeEmojis && hideBackgroundOnEmojiMessages)
@@ -321,71 +384,6 @@ class Message extends StatelessWidget {
         : defaultMessage;
   }
 
-  Widget _messageBuilder() {
-    switch (message.type) {
-      case types.MessageType.audio:
-        final audioMessage = message as types.AudioMessage;
-        return audioMessageBuilder != null ? audioMessageBuilder!(audioMessage, messageWidth: messageWidth) : const SizedBox();
-      case types.MessageType.custom:
-        final customMessage = message as types.CustomMessage;
-        return customMessageBuilder != null ? customMessageBuilder!(customMessage, messageWidth: messageWidth) : const SizedBox();
-      case types.MessageType.file:
-        final fileMessage = message as types.FileMessage;
-        return fileMessageBuilder != null
-            ? fileMessageBuilder!(fileMessage, messageWidth: messageWidth)
-            : FileMessage(message: fileMessage);
-      case types.MessageType.image:
-        final imageMessage = message as types.ImageMessage;
-        return imageMessageBuilder != null
-            ? imageMessageBuilder!(imageMessage, messageWidth: messageWidth)
-            : ImageMessage(
-                imageHeaders: imageHeaders,
-                imageProviderBuilder: imageProviderBuilder,
-                message: imageMessage,
-                messageWidth: messageWidth,
-              );
-      case types.MessageType.text:
-        final textMessage = message as types.TextMessage;
-        return textMessageBuilder != null
-            ? textMessageBuilder!(
-                textMessage,
-                messageWidth: messageWidth,
-                showName: showName,
-              )
-            : TextMessage(
-                emojiEnlargementBehavior: emojiEnlargementBehavior,
-                hideBackgroundOnEmojiMessages: hideBackgroundOnEmojiMessages,
-                message: textMessage,
-                nameBuilder: nameBuilder,
-                onPreviewDataFetched: onPreviewDataFetched,
-                options: textMessageOptions,
-                showName: showName,
-                usePreviewData: usePreviewData,
-                userAgent: userAgent,
-              );
-      case types.MessageType.video:
-        final videoMessage = message as types.VideoMessage;
-        return videoMessageBuilder != null ? videoMessageBuilder!(videoMessage, messageWidth: messageWidth) : const SizedBox();
-      default:
-        return const SizedBox();
-    }
-  }
-
-  Widget _statusIcon(
-    BuildContext context,
-  ) {
-    if (!showStatus) return const SizedBox.shrink();
-
-    return Padding(
-      padding: InheritedChatTheme.of(context).theme.statusIconPadding,
-      child: GestureDetector(
-        onLongPress: () => onMessageStatusLongPress?.call(context, message),
-        onTap: () => onMessageStatusTap?.call(context, message),
-        child: customStatusBuilder != null ? customStatusBuilder!(message, context: context) : MessageStatus(status: message.status),
-      ),
-    );
-  }
-
   Widget messageView(BuildContext context, dynamic currentUserIsAuthor, dynamic enlargeEmojis, {bool showReaction = true}) {
     return onMessageVisibilityChanged != null
         ? VisibilityDetector(
@@ -412,6 +410,7 @@ class Message extends StatelessWidget {
           emojiEnlargementBehavior,
           message as types.TextMessage,
         );
+
     final messageBorderRadius = InheritedChatTheme.of(context).theme.messageBorderRadius;
 
     final borderRadius = bubbleRtlAlignment == BubbleRtlAlignment.left
@@ -449,6 +448,8 @@ class Message extends StatelessWidget {
                 right: isMobile ? query.padding.right : 0,
               ));
 
+    final messageKey = GlobalKey();
+
     return Container(
       alignment: bubbleRtlAlignment == BubbleRtlAlignment.left
           ? currentUserIsAuthor
@@ -466,87 +467,124 @@ class Message extends StatelessWidget {
           if (!currentUserIsAuthor && showUserAvatars) _avatarBuilder(),
           if (currentUserIsAuthor && isLeftStatus) _statusIcon(context),
           ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: messageWidth.toDouble(),
-            ),
-            child: message.isDeleted == true
-                ? Container(
-                    decoration: BoxDecoration(
-                      borderRadius: borderRadius,
-                      color: !currentUserIsAuthor || message.type == types.MessageType.image
-                          ? InheritedChatTheme.of(context).theme.secondaryColor
-                          : InheritedChatTheme.of(context).theme.primaryColor,
-                    ),
-                    child: ClipRRect(
+              constraints: BoxConstraints(
+                maxWidth: messageWidth.toDouble(),
+              ),
+              child: message.isDeleted == true
+                  ? Container(
+                      decoration: BoxDecoration(
                         borderRadius: borderRadius,
-                        child: Text(
+                        color: !currentUserIsAuthor || message.type == types.MessageType.image
+                            ? InheritedChatTheme.of(context).theme.secondaryColor
+                            : InheritedChatTheme.of(context).theme.primaryColor,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: borderRadius,
+                        child: const Text(
                           "This meessage is deleted",
                           style: TextStyle(color: Colors.white),
-                        )),
-                  )
-                : messageView(context, currentUserIsAuthor, false)
-    // DragItemWidget(
-    //                 allowedOperations: () => [DropOperation.copy],
-    //                 dragItemProvider: (_) => DragItem(localData: ''),
-    //                 child: DraggableWidget(
-    //                   child: ContextMenuWidget(
-    //                       chatReaction: getUserReaction(),
-    //                       menuProvider: (MenuRequest request) {
-    //                         backmanage(false);
-    //                         return Menu(
-    //                           children: [
-    //                             for (MenuActionModel item in menuActionModel)
-    //                               if (item.typesMessage.where((element) => element == message.type).toList().isNotEmpty)
-    //                                 if (item.authorIds.where((element) => element == message.author.id).toList().isNotEmpty)
-    //                                   MenuAction(
-    //                                     title: '${item.title}',
-    //                                     state: MenuActionState.none,
-    //                                     callback: () {
-    //                                       if (item.callback != null) {
-    //                                         item.callback!(message, item.title!);
-    //                                       }
-    //                                     },
-    //                                     image: item.icon == null ? null : MenuImage.icon(item.icon!),
-    //                                   ),
-    //                           ],
-    //                         );
-    //                       },
-    //                       emojiList: emojiList,
-    //                       liftBuilder: message is types.TextMessage == false
-    //                           ? (context, child) {
-    //                               return messageView(context, currentUserIsAuthor, false, showReaction: false);
-    //                             }
-    //                           : (message as types.TextMessage).text.length < 500
-    //                               ? (context, child) {
-    //                                   return messageView(context, currentUserIsAuthor, false, showReaction: false);
-    //                                 }
-    //                               : (context, child) {
-    //                                   return Container(
-    //                                     decoration: BoxDecoration(
-    //                                       color: Theme.of(context).primaryColor,
-    //                                       borderRadius: BorderRadius.circular(12),
-    //                                     ),
-    //                                     padding: EdgeInsets.all(16),
-    //                                     child: Text(
-    //                                       "${(message as types.TextMessage).text}",
-    //                                       style: TextStyle(fontSize: 16, color: Colors.white),
-    //                                       overflow: TextOverflow.ellipsis,
-    //                                       maxLines: 20,
-    //                                     ),
-    //                                   );
-    //                                 },
-    //                       emojiClick: (emoji) {
-    //                         emojiClick(emoji, message);
-    //                       },
-    //                       backmanage: backmanage,
-    //                       isDarkMode: isDarkMode,
-    //                       child:
-    //
-    //
-    //                   ),
-    //                 ),
-    //               ),
-          ),
+                        ),
+                      ),
+                    )
+                  : IOSContextMenu(
+                      isDarkMode: isDarkMode,
+                      actions: [
+                        ContextMenuItem(
+                          'Copy',
+                          () => print('Copy pressed'),
+                          leading: const Icon(Icons.copy, size: 18, color: Colors.blue),
+                        ),
+                        ContextMenuItem(
+                          'Delete',
+                          () => print('Delete pressed'),
+                          isDestructive: true,
+                          leading: const Icon(Icons.delete, size: 18, color: Colors.red),
+                        ),
+                        ContextMenuItem("Copy", () => debugPrint("Copy tapped")),
+                        ContextMenuItem("Delete", () => debugPrint("Delete tapped"), isDestructive: true),
+                        ContextMenuItem("Edit", () => debugPrint("Delete tapped"), isDestructive: true),
+                        ContextMenuItem("Add Reaction Add Reaction Add Reaction", () => debugPrint("Delete tapped"), isDestructive: true),
+                        ContextMenuItem("Delete", () => debugPrint("Delete tapped"), isDestructive: true),
+                        ContextMenuItem("Delete", () => debugPrint("Delete tapped"), isDestructive: true),
+                      ],
+                      emojiList: emojiList,
+                      chatReaction: null,
+                      emojiClick: (emoji) {
+                        emojiClick(emoji, message);
+                      },
+                      backmanage: (bool value) {
+                        print('Menu closed');
+                      },
+                      previewKey: messageKey,
+                      child: RepaintBoundary(
+                        key: messageKey,
+                        child: messageView(context, currentUserIsAuthor, false),
+                      ),
+                    )
+
+              // DragItemWidget(
+              //         allowedOperations: () => [DropOperation.copy],
+              //         dragItemProvider: (_) => DragItem(localData: ''),
+              //         child: DraggableWidget(
+              //           child: ContextMenuWidget(
+              //               chatReaction: getUserReaction(),
+              //               menuProvider: (MenuRequest request) {
+              //                 backmanage(false);
+              //                 return Menu(
+              //                   children: [
+              //                     for (MenuActionModel item in menuActionModel)
+              //                       if (item.typesMessage.where((element) => element == message.type).toList().isNotEmpty)
+              //                         if (item.authorIds.where((element) => element == message.author.id).toList().isNotEmpty)
+              //                           MenuAction(
+              //                             title: '${item.title}',
+              //                             state: MenuActionState.none,
+              //                             callback: () {
+              //                               if (item.callback != null) {
+              //                                 item.callback!(message, item.title!);
+              //                               }
+              //                             },
+              //                             image: item.icon == null ? null : MenuImage.icon(item.icon!),
+              //                           ),
+              //                   ],
+              //                 );
+              //               },
+              //               emojiList: emojiList,
+              //               liftBuilder:
+              //
+              //               message is types.TextMessage == false
+              //                   ? (context, child) {
+              //                       return messageView(context, currentUserIsAuthor, false, showReaction: false);
+              //                     }
+              //                   : (message as types.TextMessage).text.length < 500
+              //                       ? (context, child) {
+              //                           return messageView(context, currentUserIsAuthor, false, showReaction: false);
+              //                         }
+              //                       : (context, child) {
+              //                           return Container(
+              //                             decoration: BoxDecoration(
+              //                               color: Theme.of(context).primaryColor,
+              //                               borderRadius: BorderRadius.circular(12),
+              //                             ),
+              //                             padding: EdgeInsets.all(16),
+              //                             child: Text(
+              //                               "${(message as types.TextMessage).text}",
+              //                               style: TextStyle(fontSize: 16, color: Colors.white),
+              //                               overflow: TextOverflow.ellipsis,
+              //                               maxLines: 20,
+              //                             ),
+              //                           );
+              //                         },
+              //               emojiClick: (emoji) {
+              //                 emojiClick(emoji, message);
+              //               },
+              //               backmanage: backmanage,
+              //               isDarkMode: isDarkMode,
+              //               child:
+              //
+              //               messageView(context, currentUserIsAuthor, false),),
+              //         ),
+              //       ),
+              ),
           if (currentUserIsAuthor && !isLeftStatus) _statusIcon(context),
         ],
       ),
