@@ -131,7 +131,6 @@ class IOSContextMenuState extends State<IOSContextMenu> {
   bool _wasKeyboardOpenBeforeMenu = false;
   FocusNode? _lastFocusNode;
 
-
   void _showMenu(BuildContext context, Rect rect) async {
     await _capturePreview();
 
@@ -170,7 +169,6 @@ class IOSContextMenuState extends State<IOSContextMenu> {
       menuTop -= overflowBottom;
     }
 
-
     // --- ✅ Step 1.5: Force everything below status bar (FIX ADDED HERE) ---
     final double minTopAllowed = safeTop + 8.0;
     if (emojiTop < minTopAllowed || bubbleTop < minTopAllowed) {
@@ -178,6 +176,14 @@ class IOSContextMenuState extends State<IOSContextMenu> {
       bubbleTop += shiftDown;
       emojiTop += shiftDown;
       menuTop += shiftDown;
+    }
+
+    // --- Step 2: Prevent top overflow (redundant but kept for safety) ---
+    if (emojiTop < safeTop) {
+      final diff = safeTop - emojiTop;
+      bubbleTop += diff;
+      emojiTop += diff;
+      menuTop += diff;
     }
 
     // --- Step 3: If total height overflows screen, auto adjust ---
@@ -226,9 +232,7 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                   alignment: Alignment.center,
                   child: child,
                 ),
-                child: _previewBytes != null
-                    ? Image.memory(_previewBytes!)
-                    : const SizedBox(),
+                child: _previewBytes != null ? Image.memory(_previewBytes!) : const SizedBox(),
               ),
             ),
 
@@ -240,13 +244,10 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                   final singleEmojiWidth = 36.0;
                   final totalEmojiWidth = emojiCount * singleEmojiWidth + 16;
                   final maxEmojiWidth = screenSize.width * 0.8;
-                  final emojiBarWidth =
-                  totalEmojiWidth.clamp(120.0, maxEmojiWidth);
+                  final emojiBarWidth = totalEmojiWidth.clamp(120.0, maxEmojiWidth);
 
-                  double emojiLeft =
-                      rect.left + rect.width / 2 - emojiBarWidth / 2;
-                  emojiLeft = emojiLeft.clamp(
-                      padding, screenSize.width - emojiBarWidth - padding);
+                  double emojiLeft = rect.left + rect.width / 2 - emojiBarWidth / 2;
+                  emojiLeft = emojiLeft.clamp(padding, screenSize.width - emojiBarWidth - padding);
 
                   return Positioned(
                     left: emojiLeft,
@@ -259,8 +260,7 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                           maxHeight: emojiBarHeight * 2.2,
                         ),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Theme.of(context).primaryColor,
                             borderRadius: BorderRadius.circular(100),
@@ -272,31 +272,23 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
-                                    children: widget.emojiList!
-                                        .sublist(0,
-                                        widget.emojiList!.length - 1)
-                                        .map((map) {
+                                    children: widget.emojiList!.sublist(0, widget.emojiList!.length - 1).map((map) {
                                       if (map['emoji'] != null) {
                                         return GestureDetector(
                                           onTap: () {
-                                            if (map['emoji'] ==
-                                                widget.chatReaction) {
+                                            if (map['emoji'] == widget.chatReaction) {
                                               widget.emojiClick(null);
                                             } else {
-                                              widget
-                                                  .emojiClick(map['emoji']);
+                                              widget.emojiClick(map['emoji']);
                                             }
                                             removeMenu();
                                             widget.backmanage(true);
                                           },
                                           child: Padding(
-                                            padding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 4.0),
+                                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
                                             child: Text(
                                               map['emoji'],
-                                              style: const TextStyle(
-                                                  fontSize: 22),
+                                              style: const TextStyle(fontSize: 22),
                                             ),
                                           ),
                                         );
@@ -310,25 +302,21 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                               if (widget.emojiList!.isNotEmpty)
                                 Builder(
                                   builder: (context) {
-                                    final lastMap =
-                                        widget.emojiList!.last;
+                                    final lastMap = widget.emojiList!.last;
                                     if (lastMap['emoji'] != null) {
                                       return GestureDetector(
                                         onTap: () {
-                                          if (lastMap['emoji'] ==
-                                              widget.chatReaction) {
+                                          if (lastMap['emoji'] == widget.chatReaction) {
                                             widget.emojiClick(null);
                                           } else {
-                                            widget.emojiClick(
-                                                lastMap['emoji']);
+                                            widget.emojiClick(lastMap['emoji']);
                                           }
                                           removeMenu();
                                           widget.backmanage(true);
                                         },
                                         child: Text(
                                           lastMap['emoji'],
-                                          style: const TextStyle(
-                                              fontSize: 22),
+                                          style: const TextStyle(fontSize: 22),
                                         ),
                                       );
                                     } else {
@@ -363,9 +351,7 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                   child: Container(
                     width: menuWidth,
                     decoration: BoxDecoration(
-                      color: !widget.isDarkMode
-                          ? CupertinoColors.extraLightBackgroundGray
-                          : CupertinoColors.darkBackgroundGray,
+                      color: !widget.isDarkMode ? CupertinoColors.extraLightBackgroundGray : CupertinoColors.darkBackgroundGray,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: const [
                         BoxShadow(
@@ -380,21 +366,18 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                       children: widget.actions.asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
-                        final isLast =
-                            index == widget.actions.length - 1;
+                        final isLast = index == widget.actions.length - 1;
 
                         return Column(
                           children: [
                             GestureDetector(
                               onTap: removeMenu,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 10),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                 alignment: Alignment.center,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Flexible(
                                       child: Text(
@@ -402,16 +385,11 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 16,
-                                          color: item.isDestructive
-                                              ? Colors.red
-                                              : Colors.blue,
+                                          color: item.isDestructive ? Colors.red : Colors.blue,
                                         ),
                                       ),
                                     ),
-                                    if (item.icon != null)
-                                      item.icon!
-                                    else
-                                      const SizedBox(width: 18),
+                                    if (item.icon != null) item.icon! else const SizedBox(width: 18),
                                   ],
                                 ),
                               ),
@@ -421,11 +399,8 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                                 height: 0.5,
                                 thickness: 0.5,
                                 color: widget.isDarkMode
-                                    ? CupertinoColors
-                                    .extraLightBackgroundGray
-                                    .withOpacity(0.2)
-                                    : CupertinoColors.darkBackgroundGray
-                                    .withOpacity(0.2),
+                                    ? CupertinoColors.extraLightBackgroundGray.withOpacity(0.2)
+                                    : CupertinoColors.darkBackgroundGray.withOpacity(0.2),
                               ),
                           ],
                         );
@@ -447,9 +422,6 @@ class IOSContextMenuState extends State<IOSContextMenu> {
       OverlayTracker.add(_menuEntry!);
     }
   }
-
-
-
 
   void removeMenu({bool restoreKeyboard = true}) {
     if (_menuEntry != null) {
