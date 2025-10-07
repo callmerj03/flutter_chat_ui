@@ -398,6 +398,21 @@ class Message extends StatelessWidget {
         : _bubbleBuilder(context, BorderRadius.all(Radius.circular(10)), currentUserIsAuthor, enlargeEmojis, showReaction: showReaction);
   }
 
+  List<MenuActionModel> filteredMenus() {
+    List<MenuActionModel> list = [];
+
+    //
+    for (var e in menuActionModel) {
+      for (var type in e.typesMessage) {
+        if (type == message.type) {
+          list.add(e);
+          break;
+        }
+      }
+    }
+    return list;
+  }
+
   @override
   Widget build(BuildContext context) {
     final query = MediaQuery.of(context);
@@ -484,7 +499,7 @@ class Message extends StatelessWidget {
                     )
                   : IOSContextMenu(
                       isDarkMode: isDarkMode,
-                      actions: menuActionModel,
+                      actions: filteredMenus(),
                       emojiList: emojiList,
                       chatReaction: null,
                       emojiClick: (emoji) {
@@ -494,6 +509,7 @@ class Message extends StatelessWidget {
                         backmanage(value);
                       },
                       previewKey: messageKey,
+                      message: message,
                       child: RepaintBoundary(
                         key: messageKey,
                         child: messageView(context, currentUserIsAuthor, false),

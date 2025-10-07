@@ -74,12 +74,8 @@ class FileMessage extends StatelessWidget {
                     Text(
                       message.name,
                       style: user.id == message.author.id
-                          ? InheritedChatTheme.of(context)
-                              .theme
-                              .sentMessageBodyTextStyle
-                          : InheritedChatTheme.of(context)
-                              .theme
-                              .receivedMessageBodyTextStyle,
+                          ? InheritedChatTheme.of(context).theme.sentMessageBodyTextStyle
+                          : InheritedChatTheme.of(context).theme.receivedMessageBodyTextStyle,
                       textWidthBasis: TextWidthBasis.longestLine,
                     ),
                     Container(
@@ -89,12 +85,8 @@ class FileMessage extends StatelessWidget {
                       child: Text(
                         formatBytes(message.size.truncate()),
                         style: user.id == message.author.id
-                            ? InheritedChatTheme.of(context)
-                                .theme
-                                .sentMessageCaptionTextStyle
-                            : InheritedChatTheme.of(context)
-                                .theme
-                                .receivedMessageCaptionTextStyle,
+                            ? InheritedChatTheme.of(context).theme.sentMessageCaptionTextStyle
+                            : InheritedChatTheme.of(context).theme.receivedMessageCaptionTextStyle,
                       ),
                     ),
                   ],

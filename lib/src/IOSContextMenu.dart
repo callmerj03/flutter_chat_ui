@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji;
 
 import '../flutter_chat_ui.dart';
@@ -19,6 +20,7 @@ class IOSContextMenu extends StatefulWidget {
   final Function(String?) emojiClick;
   final Function(bool) backmanage;
   final bool isDarkMode;
+  final types.Message message;
 
   const IOSContextMenu({
     super.key,
@@ -30,6 +32,7 @@ class IOSContextMenu extends StatefulWidget {
     required this.backmanage,
     this.chatReaction,
     required this.isDarkMode,
+    required this.message,
   });
 
   @override
@@ -370,8 +373,14 @@ class IOSContextMenuState extends State<IOSContextMenu> {
 
                         return Column(
                           children: [
-                            GestureDetector(
-                              onTap: removeMenu,
+                            InkWell(
+                              onTap: () {
+                                //
+                                removeMenu();
+
+                                //
+                                item.callback!(widget.message , "");
+                              },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                 alignment: Alignment.center,
