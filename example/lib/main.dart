@@ -163,8 +163,6 @@ class _ChatPageState extends State<ChatPage> {
             _messages[index] = updatedMessage;
           });
 
-
-
           final client = http.Client();
           final request = await client.get(Uri.parse(message.uri));
           final bytes = request.bodyBytes;
@@ -393,7 +391,6 @@ class _ChatPageState extends State<ChatPage> {
       ],
     ));
 
-
     MenuActionModelList.add(MenuActionModel(
       title: "Delete",
       callback: (message, title) {
@@ -414,7 +411,6 @@ class _ChatPageState extends State<ChatPage> {
         '82091008-a484-4a89-ae75-a22bf8d6f3ac',
       ],
     ));
-
 
     MenuActionModelList.add(MenuActionModel(
       title: "Delete",
@@ -478,10 +474,11 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) => WillPopScope(
         onWillPop: () async {
-          // closeOverlay();
           return false;
         },
         child: Scaffold(
@@ -504,6 +501,12 @@ class _ChatPageState extends State<ChatPage> {
                     {'emoji': '👍'},
                     {'emoji': '👍'},
                     {'emoji': '👍'},
+                    {'emoji': '👍'},
+                    {'emoji': '👍'},
+                    {'emoji': '👍'},
+                    {'emoji': '👍'},
+                    {'emoji': '👍'},
+
                     {'emoji': null},
                   ],
                   menuActionModel: MenuActionModelList,
@@ -511,10 +514,10 @@ class _ChatPageState extends State<ChatPage> {
                   textMessageOptions: const TextMessageOptions(
                     isTextSelectable: false,
                   ),
-
                   firebaseUserId: "82091008-a484-4a89-ae75-a22bf8d6f3ac",
                   backmanage: (bool) {},
                   isDarkMode: true,
+
                   // textController: _controller,
                 ),
               ),

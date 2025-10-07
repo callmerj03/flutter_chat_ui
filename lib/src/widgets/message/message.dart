@@ -404,13 +404,6 @@ class Message extends StatelessWidget {
     final user = InheritedUser.of(context).user;
     final currentUserIsAuthor = user.id == message.author.id;
 
-    final enlargeEmojis = emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
-        message is types.TextMessage &&
-        isConsistsOfEmojis(
-          emojiEnlargementBehavior,
-          message as types.TextMessage,
-        );
-
     final messageBorderRadius = InheritedChatTheme.of(context).theme.messageBorderRadius;
 
     final borderRadius = bubbleRtlAlignment == BubbleRtlAlignment.left
@@ -487,6 +480,7 @@ class Message extends StatelessWidget {
                       ),
                     )
                   : IOSContextMenu(
+
                       isDarkMode: isDarkMode,
                       actions: menuActionModel,
                       emojiList: emojiList,

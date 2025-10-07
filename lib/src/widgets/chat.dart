@@ -472,6 +472,7 @@ class ChatState extends State<Chat> {
                 maxWidth,
               ).floor();
         final Widget msgWidget = Message(
+
           isDarkMode: widget.isDarkMode,
           emojiList: widget.emojiList,
           menuActionModel: widget.menuActionModel,

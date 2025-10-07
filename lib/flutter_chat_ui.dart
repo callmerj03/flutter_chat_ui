@@ -1,12 +1,13 @@
 library flutter_chat_ui;
 
+export 'src/IOSContextMenu.dart';
 export 'src/chat_l10n.dart';
 export 'src/chat_theme.dart';
 export 'src/models/bubble_rtl_alignment.dart';
 export 'src/models/emoji_enlargement_behavior.dart';
 export 'src/models/input_clear_mode.dart';
-export 'src/models/menu_action_model.dart';
 export 'src/models/matchers.dart';
+export 'src/models/menu_action_model.dart';
 export 'src/models/pattern_style.dart';
 export 'src/models/send_button_visibility_mode.dart';
 export 'src/models/typing_indicator_mode.dart';
