@@ -488,103 +488,21 @@ class Message extends StatelessWidget {
                     )
                   : IOSContextMenu(
                       isDarkMode: isDarkMode,
-                      actions: [
-                        ContextMenuItem(
-                          'Copy',
-                          () => print('Copy pressed'),
-                          leading: const Icon(Icons.copy, size: 18, color: Colors.blue),
-                        ),
-                        ContextMenuItem(
-                          'Delete',
-                          () => print('Delete pressed'),
-                          isDestructive: true,
-                          leading: const Icon(Icons.delete, size: 18, color: Colors.red),
-                        ),
-                        ContextMenuItem("Copy", () => debugPrint("Copy tapped")),
-                        ContextMenuItem("Delete", () => debugPrint("Delete tapped"), isDestructive: true),
-                        ContextMenuItem("Edit", () => debugPrint("Delete tapped"), isDestructive: true),
-                        ContextMenuItem("Add Reaction Add Reaction Add Reaction", () => debugPrint("Delete tapped"), isDestructive: true),
-                        ContextMenuItem("Delete", () => debugPrint("Delete tapped"), isDestructive: true),
-                        ContextMenuItem("Delete", () => debugPrint("Delete tapped"), isDestructive: true),
-                      ],
+                      actions: menuActionModel,
                       emojiList: emojiList,
                       chatReaction: null,
                       emojiClick: (emoji) {
                         emojiClick(emoji, message);
                       },
                       backmanage: (bool value) {
-                        print('Menu closed');
+                        backmanage(value);
                       },
                       previewKey: messageKey,
                       child: RepaintBoundary(
                         key: messageKey,
                         child: messageView(context, currentUserIsAuthor, false),
                       ),
-                    )
-
-              // DragItemWidget(
-              //         allowedOperations: () => [DropOperation.copy],
-              //         dragItemProvider: (_) => DragItem(localData: ''),
-              //         child: DraggableWidget(
-              //           child: ContextMenuWidget(
-              //               chatReaction: getUserReaction(),
-              //               menuProvider: (MenuRequest request) {
-              //                 backmanage(false);
-              //                 return Menu(
-              //                   children: [
-              //                     for (MenuActionModel item in menuActionModel)
-              //                       if (item.typesMessage.where((element) => element == message.type).toList().isNotEmpty)
-              //                         if (item.authorIds.where((element) => element == message.author.id).toList().isNotEmpty)
-              //                           MenuAction(
-              //                             title: '${item.title}',
-              //                             state: MenuActionState.none,
-              //                             callback: () {
-              //                               if (item.callback != null) {
-              //                                 item.callback!(message, item.title!);
-              //                               }
-              //                             },
-              //                             image: item.icon == null ? null : MenuImage.icon(item.icon!),
-              //                           ),
-              //                   ],
-              //                 );
-              //               },
-              //               emojiList: emojiList,
-              //               liftBuilder:
-              //
-              //               message is types.TextMessage == false
-              //                   ? (context, child) {
-              //                       return messageView(context, currentUserIsAuthor, false, showReaction: false);
-              //                     }
-              //                   : (message as types.TextMessage).text.length < 500
-              //                       ? (context, child) {
-              //                           return messageView(context, currentUserIsAuthor, false, showReaction: false);
-              //                         }
-              //                       : (context, child) {
-              //                           return Container(
-              //                             decoration: BoxDecoration(
-              //                               color: Theme.of(context).primaryColor,
-              //                               borderRadius: BorderRadius.circular(12),
-              //                             ),
-              //                             padding: EdgeInsets.all(16),
-              //                             child: Text(
-              //                               "${(message as types.TextMessage).text}",
-              //                               style: TextStyle(fontSize: 16, color: Colors.white),
-              //                               overflow: TextOverflow.ellipsis,
-              //                               maxLines: 20,
-              //                             ),
-              //                           );
-              //                         },
-              //               emojiClick: (emoji) {
-              //                 emojiClick(emoji, message);
-              //               },
-              //               backmanage: backmanage,
-              //               isDarkMode: isDarkMode,
-              //               child:
-              //
-              //               messageView(context, currentUserIsAuthor, false),),
-              //         ),
-              //       ),
-              ),
+                    )),
           if (currentUserIsAuthor && !isLeftStatus) _statusIcon(context),
         ],
       ),

@@ -1,14 +1,17 @@
 import 'dart:ui';
 import 'dart:typed_data';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji;
 
+import '../flutter_chat_ui.dart';
+
 class IOSContextMenu extends StatefulWidget {
   final Widget child;
-  final List<ContextMenuItem> actions;
+  final List<MenuActionModel> actions;
   final GlobalKey? previewKey;
   final List<Map>? emojiList;
   final String? chatReaction;
@@ -55,245 +58,68 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
     }
   }
 
-  // version 1
-  // void _showMenu(BuildContext context, Rect rect) async {
-  //   await _capturePreview();
-  //
-  //   final overlay = Overlay.of(context);
-  //   if (overlay == null) return;
-  //
-  //   final screenSize = MediaQuery.of(context).size;
-  //   final menuHeight = 50.0 * widget.actions.length + 12;
-  //   final menuWidth = screenSize.width * 0.6;
-  //   const padding = 8.0;
-  //   const menuGap = 6.0;
-  //   const emojiBarHeight = 48.0;
-  //   const bubbleGap = 8.0; // space between bubble and emoji bar
-  //
-  //   // Initial positions
-  //   double bubbleTop = rect.top;
-  //   double emojiTop = rect.top - emojiBarHeight - bubbleGap;
-  //   double menuTop = rect.bottom + menuGap;
-  //
-  //   final totalHeightNeeded = emojiBarHeight + bubbleGap + rect.height + menuGap + menuHeight;
-  //
-  //   // Check if there is enough space above or below
-  //   final spaceAbove = rect.top;
-  //   final spaceBelow = screenSize.height - rect.bottom;
-  //
-  //   if (spaceAbove >= emojiBarHeight + bubbleGap && spaceBelow >= menuGap + menuHeight) {
-  //     // Enough space, no change
-  //     bubbleTop = rect.top;
-  //     emojiTop = rect.top - emojiBarHeight - bubbleGap;
-  //     menuTop = rect.bottom + menuGap;
-  //   } else if (spaceBelow >= totalHeightNeeded) {
-  //     // Enough space below to fit everything
-  //     bubbleTop = rect.top;
-  //     emojiTop = rect.top + rect.height + bubbleGap; // emoji below if needed
-  //     menuTop = bubbleTop + rect.height + emojiBarHeight + bubbleGap;
-  //   } else if (spaceAbove >= totalHeightNeeded) {
-  //     // Enough space above
-  //     bubbleTop = rect.top - totalHeightNeeded + rect.height;
-  //     emojiTop = bubbleTop - emojiBarHeight - bubbleGap;
-  //     menuTop = bubbleTop + rect.height + menuGap;
-  //   } else {
-  //     // Not enough space either side, shift bubble to center
-  //     bubbleTop = (screenSize.height - rect.height) / 2;
-  //     emojiTop = bubbleTop - emojiBarHeight - bubbleGap;
-  //     menuTop = bubbleTop + rect.height + menuGap;
-  //
-  //     // Clamp bubble inside screen
-  //     if (emojiTop < padding) {
-  //       bubbleTop += padding - emojiTop;
-  //       emojiTop = padding;
-  //       menuTop = bubbleTop + rect.height + menuGap;
-  //     }
-  //     if (menuTop + menuHeight > screenSize.height - padding) {
-  //       bubbleTop -= (menuTop + menuHeight - screenSize.height + padding);
-  //       emojiTop = bubbleTop - emojiBarHeight - bubbleGap;
-  //       menuTop = bubbleTop + rect.height + menuGap;
-  //     }
-  //   }
-  //
-  //   // Horizontal position
-  //   double leftPosition = rect.left + rect.width / 2 - menuWidth / 2;
-  //   if (leftPosition + menuWidth + padding > screenSize.width) {
-  //     leftPosition = screenSize.width - menuWidth - padding;
-  //   }
-  //   if (leftPosition < padding) {
-  //     leftPosition = padding;
-  //   }
-  //
-  //   _menuEntry = OverlayEntry(
-  //     builder: (context) => Material(
-  //       type: MaterialType.transparency,
-  //       child: Stack(
-  //         children: [
-  //           // Dimmed background with blur
-  //           Positioned.fill(
-  //             child: GestureDetector(
-  //               onTap: _removeMenu,
-  //               child: BackdropFilter(
-  //                 filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-  //                 child: Container(color: Colors.black26),
-  //               ),
-  //             ),
-  //           ),
-  //
-  //           // Bubble preview
-  //           AnimatedPositioned(
-  //             duration: const Duration(milliseconds: 250),
-  //             curve: Curves.easeOut,
-  //             left: rect.left,
-  //             top: bubbleTop,
-  //             width: rect.width,
-  //             height: rect.height,
-  //             child: TweenAnimationBuilder<double>(
-  //               tween: Tween(begin: 1.0, end: 1.05),
-  //               duration: const Duration(milliseconds: 150),
-  //               builder: (context, scale, child) => Transform.scale(
-  //                 scale: scale,
-  //                 alignment: Alignment.center,
-  //                 child: child,
-  //               ),
-  //               child: _previewBytes != null ? Image.memory(_previewBytes!) : const SizedBox(),
-  //             ),
-  //           ),
-  //
-  //           // Emoji bar
-  //           if (widget.emojiList != null && widget.emojiList!.isNotEmpty)
-  //             AnimatedPositioned(
-  //               duration: const Duration(milliseconds: 250),
-  //               curve: Curves.easeOut,
-  //               left: leftPosition,
-  //               top: emojiTop,
-  //               child: Material(
-  //                 color: Colors.transparent,
-  //                 child: Container(
-  //                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-  //                   decoration: BoxDecoration(
-  //                     color: Theme.of(context).primaryColor,
-  //                     borderRadius: BorderRadius.circular(100),
-  //                   ),
-  //                   height: emojiBarHeight,
-  //                   child: SingleChildScrollView(
-  //                     scrollDirection: Axis.horizontal,
-  //                     child: Row(
-  //                       mainAxisSize: MainAxisSize.min,
-  //                       children: widget.emojiList!.map((map) {
-  //                         if (map['emoji'] != null) {
-  //                           return GestureDetector(
-  //                             onTap: () {
-  //                               if (map['emoji'] == widget.chatReaction) {
-  //                                 widget.emojiClick(null);
-  //                               } else {
-  //                                 widget.emojiClick(map['emoji']);
-  //                               }
-  //                               widget.backmanage(true);
-  //                               _removeMenu();
-  //                             },
-  //                             child: Padding(
-  //                               padding: const EdgeInsets.symmetric(horizontal: 4.0),
-  //                               child: Text(
-  //                                 map['emoji'],
-  //                                 style: const TextStyle(fontSize: 28),
-  //                               ),
-  //                             ),
-  //                           );
-  //                         } else {
-  //                           return GestureDetector(
-  //                             onTap: () {},
-  //                             child: const Padding(
-  //                               padding: EdgeInsets.symmetric(horizontal: 4.0),
-  //                               child: Icon(Icons.add, size: 28),
-  //                             ),
-  //                           );
-  //                         }
-  //                       }).toList(),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //
-  //           // Menu actions
-  //           AnimatedPositioned(
-  //             duration: const Duration(milliseconds: 250),
-  //             curve: Curves.easeOut,
-  //             left: leftPosition,
-  //             top: menuTop,
-  //             child: TweenAnimationBuilder<double>(
-  //               tween: Tween(begin: 0.8, end: 1.0),
-  //               duration: const Duration(milliseconds: 250),
-  //               curve: Curves.elasticOut,
-  //               builder: (context, scale, child) {
-  //                 return Transform.scale(
-  //                   scale: scale,
-  //                   alignment: Alignment.center,
-  //                   child: child,
-  //                 );
-  //               },
-  //               child: Material(
-  //                 color: Colors.transparent,
-  //                 child: Container(
-  //                   width: menuWidth,
-  //                   decoration: BoxDecoration(
-  //                     color: Colors.white,
-  //                     borderRadius: BorderRadius.circular(12),
-  //                     boxShadow: const [
-  //                       BoxShadow(
-  //                         color: Colors.black26,
-  //                         blurRadius: 6,
-  //                         offset: Offset(2, 2),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   child: Column(
-  //                     mainAxisSize: MainAxisSize.min,
-  //                     children: widget.actions.map((item) {
-  //                       return GestureDetector(
-  //                         onTap: () {
-  //                           _removeMenu();
-  //                           item.onTap();
-  //                         },
-  //                         child: Container(
-  //                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-  //                           alignment: Alignment.center,
-  //                           child: Row(
-  //                             mainAxisSize: MainAxisSize.max,
-  //                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                             children: [
-  //                               if (item.leading != null) item.leading! else const SizedBox(width: 18),
-  //                               Flexible(
-  //                                 child: Text(
-  //                                   item.title,
-  //                                   textAlign: TextAlign.center,
-  //                                   style: TextStyle(
-  //                                     fontSize: 16,
-  //                                     color: item.isDestructive ? Colors.red : Colors.blue,
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                               if (item.trailing != null) item.trailing! else const SizedBox(width: 18),
-  //                             ],
-  //                           ),
-  //                         ),
-  //                       );
-  //                     }).toList(),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  //
-  //   overlay.insert(_menuEntry!);
-  // }
+  Widget emojiViewAddIcon() {
+    bool reactionisPartOfMap = false;
 
-  // version 2
+    widget.emojiList?.forEach((element) {
+      if (widget.chatReaction == element['emoji']) {
+        reactionisPartOfMap = true;
+      }
+    });
+
+    return widget.chatReaction == null || widget.chatReaction == "" || reactionisPartOfMap
+        ? GestureDetector(
+            onTap: () {
+              _insertOverlay(context);
+            },
+            child: Container(
+              height: 48,
+              width: 48,
+              margin: const EdgeInsets.only(top: 6, bottom: 6),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.5),
+              ),
+              child: Center(
+                  child: Icon(
+                Icons.add,
+                size: 22,
+              )),
+            ),
+          )
+        : GestureDetector(
+            onTap: () {
+              print("111111111333333");
+              widget.backmanage(true);
+              widget.emojiClick(null);
+            },
+            child: emojiView(widget.chatReaction!));
+  }
+
+  Widget emojiView(
+    String emoji,
+  ) {
+    return Container(
+      height: 48,
+      width: 48,
+      decoration: widget.chatReaction == emoji
+          ? BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.5),
+            )
+          : null,
+      margin: EdgeInsets.only(top: 6, bottom: 6),
+      child: Center(
+          child: DefaultTextStyle(
+        style: TextStyle(fontSize: 22),
+        child: Text(
+          emoji,
+        ),
+      )),
+    );
+  }
+
+  //  perfect till now
   // void _showMenu(BuildContext context, Rect rect) async {
   //   await _capturePreview();
   //
@@ -312,231 +138,27 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
   //   double emojiTop = bubbleTop - emojiBarHeight - bubbleGap;
   //   double menuTop = rect.bottom + menuGap;
   //
-  //   final totalHeight = emojiBarHeight + bubbleGap + rect.height + menuGap + menuHeight;
+  //   // Safe top boundary (status bar)
+  //   final safeTop = MediaQuery.of(context).padding.top + padding;
+  //   final safeBottom = screenSize.height - MediaQuery.of(context).padding.bottom - padding;
   //
-  //   // Check if it overflows screen bottom
-  //   final overflow = (menuTop + menuHeight + padding) - screenSize.height;
-  //   if (overflow > 0) {
-  //     // Shift entire block up by overflow amount
-  //     bubbleTop -= overflow;
-  //     emojiTop -= overflow;
-  //     menuTop -= overflow;
+  //   // Check if popup will overflow bottom
+  //   final overflowBottom = menuTop + menuHeight - safeBottom;
   //
-  //     // Ensure we don't go above top padding
-  //     if (emojiTop < padding) {
-  //       final shiftDown = padding - emojiTop;
-  //       bubbleTop += shiftDown;
-  //       emojiTop += shiftDown;
-  //       menuTop += shiftDown;
-  //     }
+  //   if (overflowBottom > 0) {
+  //     // Shift everything up by overflow
+  //     bubbleTop -= overflowBottom;
+  //     emojiTop -= overflowBottom;
+  //     menuTop -= overflowBottom;
   //   }
   //
-  //   // Horizontal position
-  //   double leftPosition = rect.left + rect.width / 2 - menuWidth / 2;
-  //   leftPosition = leftPosition.clamp(padding, screenSize.width - menuWidth - padding);
-  //
-  //   _menuEntry = OverlayEntry(
-  //     builder: (context) => Material(
-  //       type: MaterialType.transparency,
-  //       child: Stack(
-  //         children: [
-  //           Positioned.fill(
-  //             child: GestureDetector(
-  //               onTap: _removeMenu,
-  //               child: BackdropFilter(
-  //                 filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-  //                 child: Container(color: Colors.black26),
-  //               ),
-  //             ),
-  //           ),
-  //
-  //           // Bubble preview
-  //           Positioned(
-  //             left: rect.left,
-  //             top: bubbleTop,
-  //             width: rect.width,
-  //             height: rect.height,
-  //             child: TweenAnimationBuilder<double>(
-  //               tween: Tween(begin: 1.0, end: 1.05),
-  //               duration: const Duration(milliseconds: 150),
-  //               builder: (context, scale, child) => Transform.scale(
-  //                 scale: scale,
-  //                 alignment: Alignment.center,
-  //                 child: child,
-  //               ),
-  //               child: _previewBytes != null ? Image.memory(_previewBytes!) : const SizedBox(),
-  //             ),
-  //           ),
-  //
-  //           // Emoji bar
-  //           if (widget.emojiList != null && widget.emojiList!.isNotEmpty)
-  //             Positioned(
-  //               left: leftPosition,
-  //               top: emojiTop,
-  //               child: Material(
-  //                 color: Colors.transparent,
-  //                 child: Container(
-  //                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-  //                   decoration: BoxDecoration(
-  //                     color: Theme.of(context).primaryColor,
-  //                     borderRadius: BorderRadius.circular(100),
-  //                   ),
-  //                   height: emojiBarHeight,
-  //                   child: SingleChildScrollView(
-  //                     scrollDirection: Axis.horizontal,
-  //                     child: Row(
-  //                       mainAxisSize: MainAxisSize.min,
-  //                       children: widget.emojiList!.map((map) {
-  //                         if (map['emoji'] != null) {
-  //                           return GestureDetector(
-  //                             onTap: () {
-  //                               if (map['emoji'] == widget.chatReaction) {
-  //                                 widget.emojiClick(null);
-  //                               } else {
-  //                                 widget.emojiClick(map['emoji']);
-  //                               }
-  //                               widget.backmanage(true);
-  //                               _removeMenu();
-  //                             },
-  //                             child: Padding(
-  //                               padding: const EdgeInsets.symmetric(horizontal: 4.0),
-  //                               child: Text(
-  //                                 map['emoji'],
-  //                                 style: const TextStyle(fontSize: 28),
-  //                               ),
-  //                             ),
-  //                           );
-  //                         } else {
-  //                           return GestureDetector(
-  //                             onTap: () {},
-  //                             child: const Padding(
-  //                               padding: EdgeInsets.symmetric(horizontal: 4.0),
-  //                               child: Icon(Icons.add, size: 28),
-  //                             ),
-  //                           );
-  //                         }
-  //                       }).toList(),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //
-  //           // Menu actions
-  //           Positioned(
-  //             left: leftPosition,
-  //             top: menuTop,
-  //             child: TweenAnimationBuilder<double>(
-  //               tween: Tween(begin: 0.8, end: 1.0),
-  //               duration: const Duration(milliseconds: 250),
-  //               curve: Curves.elasticOut,
-  //               builder: (context, scale, child) {
-  //                 return Transform.scale(
-  //                   scale: scale,
-  //                   alignment: Alignment.center,
-  //                   child: child,
-  //                 );
-  //               },
-  //               child: Material(
-  //                 color: Colors.transparent,
-  //                 child: Container(
-  //                   width: menuWidth,
-  //                   decoration: BoxDecoration(
-  //                     color: Colors.white,
-  //                     borderRadius: BorderRadius.circular(12),
-  //                     boxShadow: const [
-  //                       BoxShadow(
-  //                         color: Colors.black26,
-  //                         blurRadius: 6,
-  //                         offset: Offset(2, 2),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   child: Column(
-  //                     mainAxisSize: MainAxisSize.min,
-  //                     children: widget.actions.map((item) {
-  //                       return GestureDetector(
-  //                         onTap: () {
-  //                           _removeMenu();
-  //                           item.onTap();
-  //                         },
-  //                         child: Container(
-  //                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-  //                           alignment: Alignment.center,
-  //                           child: Row(
-  //                             mainAxisSize: MainAxisSize.max,
-  //                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                             children: [
-  //                               if (item.leading != null) item.leading! else const SizedBox(width: 18),
-  //                               Flexible(
-  //                                 child: Text(
-  //                                   item.title,
-  //                                   textAlign: TextAlign.center,
-  //                                   style: TextStyle(
-  //                                     fontSize: 16,
-  //                                     color: item.isDestructive ? Colors.red : Colors.blue,
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                               if (item.trailing != null) item.trailing! else const SizedBox(width: 18),
-  //                             ],
-  //                           ),
-  //                         ),
-  //                       );
-  //                     }).toList(),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  //
-  //   overlay.insert(_menuEntry!);
-  // }
-
-  //  version 3
-  // void _showMenu(BuildContext context, Rect rect) async {
-  //   await _capturePreview();
-  //
-  //   final overlay = Overlay.of(context);
-  //   if (overlay == null) return;
-  //
-  //   final screenSize = MediaQuery.of(context).size;
-  //   final menuHeight = 50.0 * widget.actions.length + 12;
-  //   final menuWidth = screenSize.width * 0.6;
-  //   const padding = 8.0;
-  //   const menuGap = 6.0;
-  //   const emojiBarHeight = 48.0;
-  //   const bubbleGap = 8.0;
-  //   const overlapGap = 8.0; // gap to keep bubble visible when overlapping
-  //
-  //   double bubbleTop = rect.top;
-  //   double emojiTop = bubbleTop - emojiBarHeight - bubbleGap;
-  //   double menuTop = rect.bottom + menuGap;
-  //
-  //   // Original shifting logic
-  //   final overflow = (menuTop + menuHeight + padding) - screenSize.height;
-  //   if (overflow > 0) {
-  //     bubbleTop -= overflow;
-  //     emojiTop -= overflow;
-  //     menuTop -= overflow;
-  //
-  //     // Keep bubble inside top padding
-  //     if (emojiTop < padding) {
-  //       final shiftDown = padding - emojiTop;
-  //       bubbleTop += shiftDown;
-  //       emojiTop += shiftDown;
-  //       menuTop += shiftDown;
-  //     }
-  //   }
-  //
-  //   // Adjust menuTop if it still overflows: overlap bubble but keep gap
-  //   final maxMenuTop = rect.bottom - menuHeight + overlapGap;
-  //   if (menuTop + menuHeight > screenSize.height) {
-  //     menuTop = maxMenuTop;
+  //   // Check if emojiTop is under status bar
+  //   if (emojiTop < safeTop) {
+  //     // Shift everything down so emoji aligns with bubble top
+  //     final shiftDown = safeTop - emojiTop;
+  //     bubbleTop += shiftDown;
+  //     emojiTop += shiftDown;
+  //     menuTop += shiftDown;
   //   }
   //
   //   // Horizontal position
@@ -616,13 +238,7 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
   //                             ),
   //                           );
   //                         } else {
-  //                           return GestureDetector(
-  //                             onTap: () {},
-  //                             child: const Padding(
-  //                               padding: EdgeInsets.symmetric(horizontal: 4.0),
-  //                               child: Icon(Icons.add, size: 28),
-  //                             ),
-  //                           );
+  //                           return emojiViewAddIcon();
   //                         }
   //                       }).toList(),
   //                     ),
@@ -648,52 +264,71 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
   //               },
   //               child: Material(
   //                 color: Colors.transparent,
-  //                 child: Container(
-  //                   width: menuWidth,
-  //                   decoration: BoxDecoration(
-  //                     color: Colors.white,
-  //                     borderRadius: BorderRadius.circular(12),
-  //                     boxShadow: const [
-  //                       BoxShadow(
-  //                         color: Colors.black26,
-  //                         blurRadius: 6,
-  //                         offset: Offset(2, 2),
+  //                 child: Stack(
+  //                   children: [
+  //                     Container(
+  //                       width: menuWidth,
+  //                       decoration: BoxDecoration(
+  //                         color: !widget.isDarkMode ? CupertinoColors.extraLightBackgroundGray : CupertinoColors.darkBackgroundGray,
+  //                         borderRadius: BorderRadius.circular(12),
+  //                         boxShadow: const [
+  //                           BoxShadow(
+  //                             color: Colors.black26,
+  //                             blurRadius: 6,
+  //                             offset: Offset(2, 2),
+  //                           ),
+  //                         ],
   //                       ),
-  //                     ],
-  //                   ),
-  //                   child: Column(
-  //                     mainAxisSize: MainAxisSize.min,
-  //                     children: widget.actions.map((item) {
-  //                       return GestureDetector(
-  //                         onTap: () {
-  //                           _removeMenu();
-  //                           item.onTap();
-  //                         },
-  //                         child: Container(
-  //                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-  //                           alignment: Alignment.center,
-  //                           child: Row(
-  //                             mainAxisSize: MainAxisSize.max,
-  //                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                       child: Column(
+  //                         mainAxisSize: MainAxisSize.min,
+  //                         children: widget.actions.asMap().entries.map((entry) {
+  //                           final index = entry.key;
+  //                           final item = entry.value;
+  //                           final isLast = index == widget.actions.length - 1;
+  //
+  //                           return Column(
   //                             children: [
-  //                               if (item.leading != null) item.leading! else const SizedBox(width: 18),
-  //                               Flexible(
-  //                                 child: Text(
-  //                                   item.title,
-  //                                   textAlign: TextAlign.center,
-  //                                   style: TextStyle(
-  //                                     fontSize: 16,
-  //                                     color: item.isDestructive ? Colors.red : Colors.blue,
+  //                               GestureDetector(
+  //                                 onTap: () {
+  //                                   _removeMenu();
+  //                                   // item.callback();
+  //                                 },
+  //                                 child: Container(
+  //                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  //                                   alignment: Alignment.center,
+  //                                   child: Row(
+  //                                     mainAxisSize: MainAxisSize.max,
+  //                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                                     children: [
+  //                                       Flexible(
+  //                                         child: Text(
+  //                                           item.title ?? "",
+  //                                           textAlign: TextAlign.center,
+  //                                           style: TextStyle(
+  //                                             fontSize: 16,
+  //                                             color: item.isDestructive ? Colors.red : Colors.blue,
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                       if (item.icon != null) item.icon! else const SizedBox(width: 18),
+  //                                     ],
   //                                   ),
   //                                 ),
   //                               ),
-  //                               if (item.trailing != null) item.trailing! else const SizedBox(width: 18),
+  //                               if (!isLast)
+  //                                 Divider(
+  //                                   height: 0.5,
+  //                                   thickness: 0.5,
+  //                                   color: widget.isDarkMode
+  //                                       ? CupertinoColors.extraLightBackgroundGray.withValues(alpha: 0.2)
+  //                                       : CupertinoColors.darkBackgroundGray.withValues(alpha: 0.2),
+  //                                 ),
   //                             ],
-  //                           ),
-  //                         ),
-  //                       );
-  //                     }).toList(),
-  //                   ),
+  //                           );
+  //                         }).toList(),
+  //                       ),
+  //                     ),
+  //                   ],
   //                 ),
   //               ),
   //             ),
@@ -706,69 +341,243 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
   //   overlay.insert(_menuEntry!);
   // }
 
-  Widget emojiViewAddIcon() {
-    bool reactionisPartOfMap = false;
-
-    widget.emojiList?.forEach((element) {
-      if (widget.chatReaction == element['emoji']) {
-        reactionisPartOfMap = true;
-      }
-    });
-
-    return widget.chatReaction == null || widget.chatReaction == "" || reactionisPartOfMap
-        ? GestureDetector(
-            onTap: () {
-              _insertOverlay(context);
-            },
-            child: Container(
-              height: 48,
-              width: 48,
-              margin: const EdgeInsets.only(top: 6, bottom: 6),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.5),
-              ),
-              child: Center(
-                  child: Icon(
-                Icons.add,
-                size: 22,
-              )),
-            ),
-          )
-        : GestureDetector(
-            onTap: () {
-              print("111111111333333");
-              widget.backmanage(true);
-              widget.emojiClick(null);
-            },
-            child: emojiView(widget.chatReaction!));
-  }
-
-  Widget emojiView(
-      String emoji,
-      ) {
-    return Container(
-      height: 48,
-      width: 48,
-      decoration: widget.chatReaction == emoji
-          ? BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.5),
-      )
-          : null,
-      margin: EdgeInsets.only(top: 6, bottom: 6),
-      child: Center(
-          child: DefaultTextStyle(
-            style: TextStyle(fontSize: 22),
-            child: Text(
-              emoji,
-            ),
-          )),
-    );
-  }
+  // shrink view
+  // void _showMenu(BuildContext context, Rect rect) async {
+  //   await _capturePreview();
+  //
+  //   final overlay = Overlay.of(context);
+  //   if (overlay == null) return;
+  //
+  //   final screenSize = MediaQuery.of(context).size;
+  //   final menuHeight = 50.0 * widget.actions.length + 12;
+  //   final menuWidth = screenSize.width * 0.6;
+  //   const padding = 8.0;
+  //   const menuGap = 6.0;
+  //   const emojiBarHeight = 48.0;
+  //   const bubbleGap = 8.0;
+  //
+  //   final safeTop = MediaQuery.of(context).padding.top + padding;
+  //   final safeBottom = screenSize.height - MediaQuery.of(context).padding.bottom - padding;
+  //
+  //   // Limit bubble height if it's too big
+  //   final maxBubbleHeight = screenSize.height - emojiBarHeight - menuGap - padding * 2;
+  //   double bubbleHeight = rect.height.clamp(0.0, maxBubbleHeight);
+  //
+  //   double bubbleTop = rect.top;
+  //   double emojiTop = bubbleTop - emojiBarHeight - bubbleGap;
+  //   double menuTop = bubbleTop + bubbleHeight + menuGap;
+  //
+  //   // Check if emoji goes above safe top
+  //   if (emojiTop < safeTop) {
+  //     final shiftDown = safeTop - emojiTop;
+  //     emojiTop += shiftDown;
+  //     bubbleTop += shiftDown;
+  //     menuTop += shiftDown;
+  //   }
+  //
+  //   // Check if menu goes below safe bottom
+  //   if (menuTop + menuHeight > safeBottom) {
+  //     // Shift everything up as much as possible
+  //     final shiftUp = menuTop + menuHeight - safeBottom;
+  //     menuTop -= shiftUp;
+  //     bubbleTop -= shiftUp;
+  //     emojiTop -= shiftUp;
+  //
+  //     // If emoji is still above safeTop, shrink bubble
+  //     if (emojiTop < safeTop) {
+  //       final overflow = safeTop - emojiTop;
+  //       emojiTop += overflow;
+  //       bubbleTop += overflow;
+  //       bubbleHeight -= overflow; // shrink bubble height
+  //     }
+  //   }
+  //
+  //   double leftPosition = rect.left + rect.width / 2 - menuWidth / 2;
+  //   leftPosition = leftPosition.clamp(padding, screenSize.width - menuWidth - padding);
+  //
+  //   _menuEntry = OverlayEntry(
+  //     builder: (context) => Material(
+  //       type: MaterialType.transparency,
+  //       child: Stack(
+  //         children: [
+  //           // Background blur
+  //           Positioned.fill(
+  //             child: GestureDetector(
+  //               onTap: _removeMenu,
+  //               child: BackdropFilter(
+  //                 filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+  //                 child: Container(color: Colors.black26),
+  //               ),
+  //             ),
+  //           ),
+  //
+  //           // Bubble preview
+  //           Positioned(
+  //             left: rect.left,
+  //             top: bubbleTop,
+  //             width: rect.width,
+  //             height: bubbleHeight,
+  //             child: TweenAnimationBuilder<double>(
+  //               tween: Tween(begin: 1.0, end: 1.05),
+  //               duration: const Duration(milliseconds: 150),
+  //               builder: (context, scale, child) => Transform.scale(
+  //                 scale: scale,
+  //                 alignment: Alignment.center,
+  //                 child: child,
+  //               ),
+  //               child: _previewBytes != null ? Image.memory(_previewBytes!) : const SizedBox(),
+  //             ),
+  //           ),
+  //
+  //           // Emoji bar
+  //           if (widget.emojiList != null && widget.emojiList!.isNotEmpty)
+  //             Positioned(
+  //               left: leftPosition,
+  //               top: emojiTop,
+  //               child: Material(
+  //                 color: Colors.transparent,
+  //                 child: Container(
+  //                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  //                   decoration: BoxDecoration(
+  //                     color: Theme.of(context).primaryColor,
+  //                     borderRadius: BorderRadius.circular(100),
+  //                   ),
+  //                   height: emojiBarHeight,
+  //                   child: SingleChildScrollView(
+  //                     scrollDirection: Axis.horizontal,
+  //                     child: Row(
+  //                       mainAxisSize: MainAxisSize.min,
+  //                       children: widget.emojiList!.map((map) {
+  //                         if (map['emoji'] != null) {
+  //                           return GestureDetector(
+  //                             onTap: () {
+  //                               if (map['emoji'] == widget.chatReaction) {
+  //                                 widget.emojiClick(null);
+  //                               } else {
+  //                                 widget.emojiClick(map['emoji']);
+  //                               }
+  //                               widget.backmanage(true);
+  //                               _removeMenu();
+  //                             },
+  //                             child: Padding(
+  //                               padding: const EdgeInsets.symmetric(horizontal: 4.0),
+  //                               child: Text(
+  //                                 map['emoji'],
+  //                                 style: const TextStyle(fontSize: 28),
+  //                               ),
+  //                             ),
+  //                           );
+  //                         } else {
+  //                           return emojiViewAddIcon();
+  //                         }
+  //                       }).toList(),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //           // Menu actions
+  //           Positioned(
+  //             left: leftPosition,
+  //             top: menuTop,
+  //             child: TweenAnimationBuilder<double>(
+  //               tween: Tween(begin: 0.8, end: 1.0),
+  //               duration: const Duration(milliseconds: 250),
+  //               curve: Curves.elasticOut,
+  //               builder: (context, scale, child) {
+  //                 return Transform.scale(
+  //                   scale: scale,
+  //                   alignment: Alignment.center,
+  //                   child: child,
+  //                 );
+  //               },
+  //               child: Material(
+  //                 color: Colors.transparent,
+  //                 child: Stack(
+  //                   children: [
+  //                     Container(
+  //                       width: menuWidth,
+  //                       decoration: BoxDecoration(
+  //                         color: !widget.isDarkMode ? CupertinoColors.extraLightBackgroundGray : CupertinoColors.darkBackgroundGray,
+  //                         borderRadius: BorderRadius.circular(12),
+  //                         boxShadow: const [
+  //                           BoxShadow(
+  //                             color: Colors.black26,
+  //                             blurRadius: 6,
+  //                             offset: Offset(2, 2),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                       child: Column(
+  //                         mainAxisSize: MainAxisSize.min,
+  //                         children: widget.actions.asMap().entries.map((entry) {
+  //                           final index = entry.key;
+  //                           final item = entry.value;
+  //                           final isLast = index == widget.actions.length - 1;
+  //
+  //                           return Column(
+  //                             children: [
+  //                               GestureDetector(
+  //                                 onTap: () {
+  //                                   _removeMenu();
+  //                                   // item.callback();
+  //                                 },
+  //                                 child: Container(
+  //                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  //                                   alignment: Alignment.center,
+  //                                   child: Row(
+  //                                     mainAxisSize: MainAxisSize.max,
+  //                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                                     children: [
+  //                                       Flexible(
+  //                                         child: Text(
+  //                                           item.title ?? "",
+  //                                           textAlign: TextAlign.center,
+  //                                           style: TextStyle(
+  //                                             fontSize: 16,
+  //                                             color: item.isDestructive ? Colors.red : Colors.blue,
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                       if (item.icon != null) item.icon! else const SizedBox(width: 18),
+  //                                     ],
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                               if (!isLast)
+  //                                 Divider(
+  //                                   height: 0.5,
+  //                                   thickness: 0.5,
+  //                                   color: widget.isDarkMode
+  //                                       ? CupertinoColors.extraLightBackgroundGray.withValues(alpha: 0.2)
+  //                                       : CupertinoColors.darkBackgroundGray.withValues(alpha: 0.2),
+  //                                 ),
+  //                             ],
+  //                           );
+  //                         }).toList(),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  //
+  //   overlay.insert(_menuEntry!);
+  // }
 
   void _showMenu(BuildContext context, Rect rect) async {
     await _capturePreview();
+
+    final bool wasKeyboardOpen =
+        MediaQuery.of(context).viewInsets.bottom > 0;
+
+    FocusScope.of(context).unfocus();
 
     final overlay = Overlay.of(context);
     if (overlay == null) return;
@@ -780,45 +589,56 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
     const menuGap = 6.0;
     const emojiBarHeight = 48.0;
     const bubbleGap = 8.0;
-    const overlapGap = 8.0;
 
     double bubbleTop = rect.top;
     double emojiTop = bubbleTop - emojiBarHeight - bubbleGap;
     double menuTop = rect.bottom + menuGap;
 
-    // Original shifting logic
-    final overflow = (menuTop + menuHeight + padding) - screenSize.height;
-    if (overflow > 0) {
-      bubbleTop -= overflow;
-      emojiTop -= overflow;
-      menuTop -= overflow;
+    final safeTop = MediaQuery.of(context).padding.top + padding;
+    final safeBottom = screenSize.height - MediaQuery.of(context).padding.bottom - padding;
 
-      // Keep bubble inside top padding + status bar
-      final topLimit = MediaQuery.of(context).padding.top + padding;
-      if (emojiTop < topLimit) {
-        final shiftDown = topLimit - emojiTop;
-        bubbleTop += shiftDown;
-        emojiTop += shiftDown;
-        menuTop += shiftDown;
-      }
+    // --- Step 1: Apply your existing bottom overflow fix ---
+    final overflowBottom = menuTop + menuHeight - safeBottom;
+    if (overflowBottom > 0) {
+      bubbleTop -= overflowBottom;
+      emojiTop -= overflowBottom;
+      menuTop -= overflowBottom;
     }
 
-    // Adjust menuTop if it still overflows: overlap bubble but keep gap
-    final maxMenuTop = rect.bottom - menuHeight + overlapGap;
-    if (menuTop + menuHeight > screenSize.height) {
-      menuTop = maxMenuTop;
+    // --- Step 2: Apply your existing top overflow fix ---
+    if (emojiTop < safeTop) {
+      final shiftDown = safeTop - emojiTop;
+      bubbleTop += shiftDown;
+      emojiTop += shiftDown;
+      menuTop += shiftDown;
     }
 
-    // Horizontal position
+    // --- Step 3: Check combined height fits screen ---
+    final totalTop = emojiTop;
+    final totalBottom = menuTop + menuHeight;
+    final totalHeight = totalBottom - totalTop;
+
+    // if combined height doesn't fit, overlap popup slightly over bubble
+    if (totalHeight > screenSize.height - (padding * 2)) {
+      final overlapAmount = totalHeight - (screenSize.height - (padding * 2));
+
+      // Instead of shifting all views, just move popup up to overlap bubble
+      menuTop -= overlapAmount + 12; // 12 gives small padding
+    }
+
+    // --- Step 4: Clamp horizontal position (unchanged) ---
     double leftPosition = rect.left + rect.width / 2 - menuWidth / 2;
     leftPosition = leftPosition.clamp(padding, screenSize.width - menuWidth - padding);
 
+    // --- Step 5: Insert Overlay (same as yours) ---
+    await Future.delayed(const Duration(milliseconds: 250));
+
+    //
     _menuEntry = OverlayEntry(
       builder: (context) => Material(
         type: MaterialType.transparency,
         child: Stack(
           children: [
-            // Background blur
             Positioned.fill(
               child: GestureDetector(
                 onTap: _removeMenu,
@@ -829,7 +649,7 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
               ),
             ),
 
-            // Bubble preview
+            // Bubble
             Positioned(
               left: rect.left,
               top: bubbleTop,
@@ -895,7 +715,7 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
                 ),
               ),
 
-            // Menu actions
+            // Popup menu (unchanged)
             Positioned(
               left: leftPosition,
               top: menuTop,
@@ -915,7 +735,7 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
                   child: Container(
                     width: menuWidth,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: !widget.isDarkMode ? CupertinoColors.extraLightBackgroundGray : CupertinoColors.darkBackgroundGray,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: const [
                         BoxShadow(
@@ -927,34 +747,49 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: widget.actions.map((item) {
-                        return GestureDetector(
-                          onTap: () {
-                            _removeMenu();
-                            item.onTap();
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                if (item.leading != null) item.leading! else const SizedBox(width: 18),
-                                Flexible(
-                                  child: Text(
-                                    item.title,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: item.isDestructive ? Colors.red : Colors.blue,
+                      children: widget.actions.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+                        final isLast = index == widget.actions.length - 1;
+
+                        return Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                _removeMenu();
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        item.title ?? "",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: item.isDestructive ? Colors.red : Colors.blue,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    if (item.icon != null) item.icon! else const SizedBox(width: 18),
+                                  ],
                                 ),
-                                if (item.trailing != null) item.trailing! else const SizedBox(width: 18),
-                              ],
+                                color: Colors.transparent,
+                              ),
                             ),
-                          ),
+                            if (!isLast)
+                              Divider(
+                                height: 0.5,
+                                thickness: 0.5,
+                                color: widget.isDarkMode
+                                    ? CupertinoColors.extraLightBackgroundGray.withValues(alpha: 0.2)
+                                    : CupertinoColors.darkBackgroundGray.withValues(alpha: 0.2),
+                              ),
+                          ],
                         );
                       }).toList(),
                     ),
@@ -971,6 +806,7 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
   }
 
   void _removeMenu() {
+    // FocusScope.of(context).requestFocus(focusNode);
     _menuEntry?.remove();
     _menuEntry = null;
   }
@@ -1076,20 +912,4 @@ class _IOSContextMenuState extends State<IOSContextMenu> {
       child: widget.child,
     );
   }
-}
-
-class ContextMenuItem {
-  final String title;
-  final VoidCallback onTap;
-  final bool isDestructive;
-  final Widget? leading;
-  final Widget? trailing;
-
-  ContextMenuItem(
-    this.title,
-    this.onTap, {
-    this.isDestructive = false,
-    this.leading,
-    this.trailing,
-  });
 }

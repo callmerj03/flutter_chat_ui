@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -155,6 +154,7 @@ class _ChatPageState extends State<ChatPage> {
       if (message.uri.startsWith('http')) {
         try {
           final index = _messages.indexWhere((element) => element.id == message.id);
+
           final updatedMessage = (_messages[index] as types.FileMessage).copyWith(
             isLoading: true,
           );
@@ -162,6 +162,8 @@ class _ChatPageState extends State<ChatPage> {
           setState(() {
             _messages[index] = updatedMessage;
           });
+
+
 
           final client = http.Client();
           final request = await client.get(Uri.parse(message.uri));
@@ -217,15 +219,12 @@ class _ChatPageState extends State<ChatPage> {
 
     final messages = (jsonDecode(response) as List).map((e) => types.Message.fromJson(e as Map<String, dynamic>)).toList();
 
-
-
-
     MenuActionModelList.add(MenuActionModel(
       title: "Copy",
       callback: (message, title) {
         print(">>> ${title}");
       },
-      icon: Icons.copy,
+      icon: Icon(Icons.copy),
       typesMessage: [
         types.MessageType.text,
       ],
@@ -237,7 +236,7 @@ class _ChatPageState extends State<ChatPage> {
       callback: (message, title) {
         print(">>> ${title}");
       },
-      icon: Icons.download,
+      icon: Icon(Icons.download),
       typesMessage: [
         types.MessageType.file,
         types.MessageType.image,
@@ -255,7 +254,195 @@ class _ChatPageState extends State<ChatPage> {
       callback: (message, title) {
         print(">>> ${title}");
       },
-      icon: Icons.delete,
+      icon: Icon(Icons.delete),
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+        types.MessageType.system,
+        types.MessageType.unsupported,
+        types.MessageType.custom,
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+      ],
+    ));
+
+    MenuActionModelList.add(MenuActionModel(
+      title: "Delete",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icon(Icons.delete),
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+        types.MessageType.system,
+        types.MessageType.unsupported,
+        types.MessageType.custom,
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+      ],
+    ));
+    MenuActionModelList.add(MenuActionModel(
+      title: "Delete",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icon(Icons.delete),
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+        types.MessageType.system,
+        types.MessageType.unsupported,
+        types.MessageType.custom,
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+      ],
+    ));
+    MenuActionModelList.add(MenuActionModel(
+      title: "Delete",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icon(Icons.delete),
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+        types.MessageType.system,
+        types.MessageType.unsupported,
+        types.MessageType.custom,
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+      ],
+    ));
+    MenuActionModelList.add(MenuActionModel(
+      title: "Delete",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icon(Icons.delete),
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+        types.MessageType.system,
+        types.MessageType.unsupported,
+        types.MessageType.custom,
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+      ],
+    ));
+
+    MenuActionModelList.add(MenuActionModel(
+      title: "Delete",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icon(Icons.delete),
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+        types.MessageType.system,
+        types.MessageType.unsupported,
+        types.MessageType.custom,
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+      ],
+    ));
+
+    MenuActionModelList.add(MenuActionModel(
+      title: "Delete",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icon(Icons.delete),
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+        types.MessageType.system,
+        types.MessageType.unsupported,
+        types.MessageType.custom,
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+      ],
+    ));
+
+
+    MenuActionModelList.add(MenuActionModel(
+      title: "Delete",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icon(Icons.delete),
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+        types.MessageType.system,
+        types.MessageType.unsupported,
+        types.MessageType.custom,
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+      ],
+    ));
+
+
+    MenuActionModelList.add(MenuActionModel(
+      title: "Delete",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icon(Icons.delete),
+      typesMessage: [
+        types.MessageType.file,
+        types.MessageType.image,
+        types.MessageType.video,
+        types.MessageType.audio,
+        types.MessageType.system,
+        types.MessageType.unsupported,
+        types.MessageType.custom,
+        types.MessageType.text,
+      ],
+      authorIds: [
+        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+      ],
+    ));
+
+    MenuActionModelList.add(MenuActionModel(
+      title: "Delete",
+      callback: (message, title) {
+        print(">>> ${title}");
+      },
+      icon: Icon(Icons.delete),
       typesMessage: [
         types.MessageType.file,
         types.MessageType.image,
