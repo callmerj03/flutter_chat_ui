@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 import 'dart:typed_data';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
@@ -130,6 +131,312 @@ class IOSContextMenuState extends State<IOSContextMenu> {
   bool _wasKeyboardOpenBeforeMenu = false;
   FocusNode? _lastFocusNode;
 
+  // void _showMenu(BuildContext context, Rect rect) async {
+  //   await _capturePreview();
+  //
+  //   // Remember current keyboard & focus state
+  //   _wasKeyboardOpenBeforeMenu = MediaQuery.of(context).viewInsets.bottom > 0;
+  //   _lastFocusNode = FocusManager.instance.primaryFocus;
+  //
+  //   // Dismiss keyboard
+  //   FocusScope.of(context).unfocus();
+  //
+  //   final overlay = Overlay.of(context);
+  //   if (overlay == null) return;
+  //
+  //   final screenSize = MediaQuery.of(context).size;
+  //   final menuHeight = 50.0 * widget.actions.length + 12;
+  //   final menuWidth = screenSize.width * 0.6;
+  //   const padding = 8.0;
+  //   const menuGap = 6.0;
+  //   const emojiBarHeight = 48.0;
+  //   const bubbleGap = 8.0;
+  //
+  //   double bubbleTop = rect.top;
+  //   double emojiTop = bubbleTop - emojiBarHeight - bubbleGap;
+  //   double menuTop = rect.bottom + menuGap;
+  //
+  //   final safeTop = MediaQuery.of(context).padding.top + padding;
+  //   final safeBottom = screenSize.height - MediaQuery.of(context).padding.bottom - padding;
+  //
+  //   // --- Step 1: Prevent bottom overflow ---
+  //   final overflowBottom = menuTop + menuHeight - safeBottom;
+  //   if (overflowBottom > 0) {
+  //     bubbleTop -= overflowBottom;
+  //     emojiTop -= overflowBottom;
+  //     menuTop -= overflowBottom;
+  //   }
+  //
+  //   // --- Step 2: Prevent top overflow ---
+  //   if (emojiTop < safeTop) {
+  //     final shiftDown = safeTop - emojiTop;
+  //     bubbleTop += shiftDown;
+  //     emojiTop += shiftDown;
+  //     menuTop += shiftDown;
+  //   }
+  //
+  //   // --- Step 3: Ensure bubble below status bar ---
+  //   if (bubbleTop < safeTop) {
+  //     final diff = safeTop - bubbleTop;
+  //     bubbleTop += diff;
+  //     emojiTop += diff;
+  //     menuTop += diff;
+  //   }
+  //
+  //   // --- Step 4: Fit combined height ---
+  //   final totalTop = emojiTop;
+  //   final totalBottom = menuTop + menuHeight;
+  //   final totalHeight = totalBottom - totalTop;
+  //
+  //   if (totalHeight > screenSize.height - (padding * 2)) {
+  //     final overlapAmount = totalHeight - (screenSize.height - (padding * 2));
+  //     menuTop -= overlapAmount + 12;
+  //   }
+  //
+  //   // --- Step 5: Base left position for popup menu ---
+  //   double leftPosition = rect.left + rect.width / 2 - menuWidth / 2;
+  //   leftPosition = leftPosition.clamp(padding, screenSize.width - menuWidth - padding);
+  //
+  //   await Future.delayed(const Duration(milliseconds: 250));
+  //
+  //   _menuEntry = OverlayEntry(
+  //     builder: (context) => Material(
+  //       type: MaterialType.transparency,
+  //       child: Stack(
+  //         children: [
+  //           // Background Blur
+  //           Positioned.fill(
+  //             child: GestureDetector(
+  //               onTap: removeMenu,
+  //               child: BackdropFilter(
+  //                 filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+  //                 child: Container(color: Colors.black26),
+  //               ),
+  //             ),
+  //           ),
+  //
+  //           // Bubble
+  //           Positioned(
+  //             left: rect.left,
+  //             top: bubbleTop,
+  //             width: rect.width,
+  //             height: rect.height,
+  //             child: TweenAnimationBuilder<double>(
+  //               tween: Tween(begin: 1.0, end: 1.05),
+  //               duration: const Duration(milliseconds: 150),
+  //               builder: (context, scale, child) => Transform.scale(
+  //                 scale: scale,
+  //                 alignment: Alignment.center,
+  //                 child: child,
+  //               ),
+  //               child: _previewBytes != null ? Image.memory(_previewBytes!) : const SizedBox(),
+  //             ),
+  //           ),
+  //
+  //           // ✅ Emoji Bar (with centering + clamping fix)
+  //           if (widget.emojiList != null && widget.emojiList!.isNotEmpty)
+  //             Builder(
+  //               builder: (context) {
+  //                 final emojiCount = widget.emojiList!.length;
+  //                 final singleEmojiWidth = 36.0; // Approx emoji + padding width
+  //                 final totalEmojiWidth = emojiCount * singleEmojiWidth + 16;
+  //                 final maxEmojiWidth = screenSize.width * 0.8;
+  //
+  //                 // Final bar width (limit to screen)
+  //                 final emojiBarWidth = totalEmojiWidth.clamp(120.0, maxEmojiWidth);
+  //
+  //                 // Center with bubble
+  //                 double emojiLeft = rect.left + rect.width / 2 - emojiBarWidth / 2;
+  //
+  //                 // Clamp horizontally
+  //                 if (emojiLeft < padding) {
+  //                   emojiLeft = padding;
+  //                 } else if (emojiLeft + emojiBarWidth > screenSize.width - padding) {
+  //                   emojiLeft = screenSize.width - emojiBarWidth - padding;
+  //                 }
+  //
+  //                 return Positioned(
+  //                   left: emojiLeft,
+  //                   top: emojiTop,
+  //                   child: Material(
+  //                     color: Colors.transparent,
+  //                     child: ConstrainedBox(
+  //                       constraints: BoxConstraints(
+  //                         maxWidth: emojiBarWidth,
+  //                         maxHeight: emojiBarHeight * 2.2,
+  //                       ),
+  //                       child: Container(
+  //                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  //                         decoration: BoxDecoration(
+  //                           color: Theme.of(context).primaryColor,
+  //                           borderRadius: BorderRadius.circular(100),
+  //                         ),
+  //                         child: Row(
+  //                           mainAxisSize: MainAxisSize.min,
+  //                           children: [
+  //                             // Scrollable emojis except last one
+  //                             Expanded(
+  //                               child: SingleChildScrollView(
+  //                                 scrollDirection: Axis.horizontal,
+  //                                 child: Row(
+  //                                   children: widget.emojiList!.sublist(0, widget.emojiList!.length - 1).map((map) {
+  //                                     if (map['emoji'] != null) {
+  //                                       return GestureDetector(
+  //                                         onTap: () {
+  //                                           if (map['emoji'] == widget.chatReaction) {
+  //                                             widget.emojiClick(null);
+  //                                           } else {
+  //                                             widget.emojiClick(map['emoji']);
+  //                                           }
+  //                                           removeMenu();
+  //                                           widget.backmanage(true);
+  //                                         },
+  //                                         child: Padding(
+  //                                           padding: const EdgeInsets.symmetric(horizontal: 4.0),
+  //                                           child: Text(
+  //                                             map['emoji'],
+  //                                             style: const TextStyle(fontSize: 22),
+  //                                           ),
+  //                                         ),
+  //                                       );
+  //                                     } else {
+  //                                       return emojiViewAddIcon();
+  //                                     }
+  //                                   }).toList(),
+  //                                 ),
+  //                               ),
+  //                             ),
+  //
+  //                             // Fixed last emoji at the end
+  //                             if (widget.emojiList!.isNotEmpty)
+  //                               Builder(
+  //                                 builder: (context) {
+  //                                   final lastMap = widget.emojiList!.last;
+  //                                   if (lastMap['emoji'] != null) {
+  //                                     return GestureDetector(
+  //                                       onTap: () {
+  //                                         if (lastMap['emoji'] == widget.chatReaction) {
+  //                                           widget.emojiClick(null);
+  //                                         } else {
+  //                                           widget.emojiClick(lastMap['emoji']);
+  //                                         }
+  //                                         removeMenu();
+  //                                         widget.backmanage(true);
+  //                                       },
+  //                                       child: Text(
+  //                                         lastMap['emoji'],
+  //                                         style: const TextStyle(fontSize: 22),
+  //                                       ),
+  //                                     );
+  //                                   } else {
+  //                                     return emojiViewAddIcon();
+  //                                   }
+  //                                 },
+  //                               ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //             ),
+  //
+  //           // Popup Menu (unchanged)
+  //           Positioned(
+  //             left: leftPosition,
+  //             top: menuTop,
+  //             child: TweenAnimationBuilder<double>(
+  //               tween: Tween(begin: 0.8, end: 1.0),
+  //               duration: const Duration(milliseconds: 250),
+  //               curve: Curves.elasticOut,
+  //               builder: (context, scale, child) {
+  //                 return Transform.scale(
+  //                   scale: scale,
+  //                   alignment: Alignment.center,
+  //                   child: child,
+  //                 );
+  //               },
+  //               child: Material(
+  //                 color: Colors.transparent,
+  //                 child: Container(
+  //                   width: menuWidth,
+  //                   decoration: BoxDecoration(
+  //                     color: !widget.isDarkMode ? CupertinoColors.extraLightBackgroundGray : CupertinoColors.darkBackgroundGray,
+  //                     borderRadius: BorderRadius.circular(12),
+  //                     boxShadow: const [
+  //                       BoxShadow(
+  //                         color: Colors.black26,
+  //                         blurRadius: 6,
+  //                         offset: Offset(2, 2),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   child: Column(
+  //                     mainAxisSize: MainAxisSize.min,
+  //                     children: widget.actions.asMap().entries.map((entry) {
+  //                       final index = entry.key;
+  //                       final item = entry.value;
+  //                       final isLast = index == widget.actions.length - 1;
+  //
+  //                       return Column(
+  //                         children: [
+  //                           GestureDetector(
+  //                             onTap: removeMenu,
+  //                             child: Container(
+  //                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  //                               alignment: Alignment.center,
+  //                               child: Row(
+  //                                 mainAxisSize: MainAxisSize.max,
+  //                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                                 children: [
+  //                                   Flexible(
+  //                                     child: Text(
+  //                                       item.title ?? "",
+  //                                       textAlign: TextAlign.center,
+  //                                       style: TextStyle(
+  //                                         fontSize: 16,
+  //                                         color: item.isDestructive ? Colors.red : Colors.blue,
+  //                                       ),
+  //                                     ),
+  //                                   ),
+  //                                   if (item.icon != null) item.icon! else const SizedBox(width: 18),
+  //                                 ],
+  //                               ),
+  //                               color: Colors.transparent,
+  //                             ),
+  //                           ),
+  //                           if (!isLast)
+  //                             Divider(
+  //                               height: 0.5,
+  //                               thickness: 0.5,
+  //                               color: widget.isDarkMode
+  //                                   ? CupertinoColors.extraLightBackgroundGray.withValues(alpha: 0.2)
+  //                                   : CupertinoColors.darkBackgroundGray.withValues(alpha: 0.2),
+  //                             ),
+  //                         ],
+  //                       );
+  //                     }).toList(),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  //
+  //   widget.backmanage(false);
+  //   overlay.insert(_menuEntry!);
+  //
+  //   //
+  //   if (_menuEntry != null) {
+  //     OverlayTracker.add(_menuEntry!);
+  //   }
+  // }
+
+
   void _showMenu(BuildContext context, Rect rect) async {
     await _capturePreview();
 
@@ -144,19 +451,21 @@ class IOSContextMenuState extends State<IOSContextMenu> {
     if (overlay == null) return;
 
     final screenSize = MediaQuery.of(context).size;
-    final menuHeight = 50.0 * widget.actions.length + 12;
-    final menuWidth = screenSize.width * 0.6;
     const padding = 8.0;
     const menuGap = 6.0;
     const emojiBarHeight = 48.0;
     const bubbleGap = 8.0;
+    final safeTop = MediaQuery.of(context).padding.top + padding;
+    final safeBottom = screenSize.height - MediaQuery.of(context).padding.bottom - padding;
 
+    // Base sizes
+    final menuHeight = 50.0 * widget.actions.length + 12;
+    final menuWidth = screenSize.width * 0.6;
+
+    // Initial positions
     double bubbleTop = rect.top;
     double emojiTop = bubbleTop - emojiBarHeight - bubbleGap;
     double menuTop = rect.bottom + menuGap;
-
-    final safeTop = MediaQuery.of(context).padding.top + padding;
-    final safeBottom = screenSize.height - MediaQuery.of(context).padding.bottom - padding;
 
     // --- Step 1: Prevent bottom overflow ---
     final overflowBottom = menuTop + menuHeight - safeBottom;
@@ -166,23 +475,17 @@ class IOSContextMenuState extends State<IOSContextMenu> {
       menuTop -= overflowBottom;
     }
 
-    // --- Step 2: Prevent top overflow ---
-    if (emojiTop < safeTop) {
-      final shiftDown = safeTop - emojiTop;
+
+    // --- Step 2: Prevent top overflow (emoji bar or bubble above status bar) ---
+    final minTopAllowed = safeTop + 8.0; // extra margin
+    if (emojiTop < minTopAllowed || bubbleTop < minTopAllowed) {
+      final shiftDown = minTopAllowed - min(emojiTop, bubbleTop);
       bubbleTop += shiftDown;
       emojiTop += shiftDown;
       menuTop += shiftDown;
     }
 
-    // --- Step 3: Ensure bubble below status bar ---
-    if (bubbleTop < safeTop) {
-      final diff = safeTop - bubbleTop;
-      bubbleTop += diff;
-      emojiTop += diff;
-      menuTop += diff;
-    }
-
-    // --- Step 4: Fit combined height ---
+    // --- Step 3: If total height overflows screen, auto adjust ---
     final totalTop = emojiTop;
     final totalBottom = menuTop + menuHeight;
     final totalHeight = totalBottom - totalTop;
@@ -192,7 +495,7 @@ class IOSContextMenuState extends State<IOSContextMenu> {
       menuTop -= overlapAmount + 12;
     }
 
-    // --- Step 5: Base left position for popup menu ---
+    // --- Step 4: Center popup horizontally ---
     double leftPosition = rect.left + rect.width / 2 - menuWidth / 2;
     leftPosition = leftPosition.clamp(padding, screenSize.width - menuWidth - padding);
 
@@ -214,7 +517,7 @@ class IOSContextMenuState extends State<IOSContextMenu> {
               ),
             ),
 
-            // Bubble
+            // Bubble preview
             Positioned(
               left: rect.left,
               top: bubbleTop,
@@ -228,31 +531,27 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                   alignment: Alignment.center,
                   child: child,
                 ),
-                child: _previewBytes != null ? Image.memory(_previewBytes!) : const SizedBox(),
+                child: _previewBytes != null
+                    ? Image.memory(_previewBytes!)
+                    : const SizedBox(),
               ),
             ),
 
-            // ✅ Emoji Bar (with centering + clamping fix)
+            // Emoji bar (with dynamic centering)
             if (widget.emojiList != null && widget.emojiList!.isNotEmpty)
               Builder(
                 builder: (context) {
                   final emojiCount = widget.emojiList!.length;
-                  final singleEmojiWidth = 36.0; // Approx emoji + padding width
+                  final singleEmojiWidth = 36.0;
                   final totalEmojiWidth = emojiCount * singleEmojiWidth + 16;
                   final maxEmojiWidth = screenSize.width * 0.8;
+                  final emojiBarWidth =
+                  totalEmojiWidth.clamp(120.0, maxEmojiWidth);
 
-                  // Final bar width (limit to screen)
-                  final emojiBarWidth = totalEmojiWidth.clamp(120.0, maxEmojiWidth);
-
-                  // Center with bubble
-                  double emojiLeft = rect.left + rect.width / 2 - emojiBarWidth / 2;
-
-                  // Clamp horizontally
-                  if (emojiLeft < padding) {
-                    emojiLeft = padding;
-                  } else if (emojiLeft + emojiBarWidth > screenSize.width - padding) {
-                    emojiLeft = screenSize.width - emojiBarWidth - padding;
-                  }
+                  double emojiLeft =
+                      rect.left + rect.width / 2 - emojiBarWidth / 2;
+                  emojiLeft = emojiLeft.clamp(
+                      padding, screenSize.width - emojiBarWidth - padding);
 
                   return Positioned(
                     left: emojiLeft,
@@ -265,7 +564,8 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                           maxHeight: emojiBarHeight * 2.2,
                         ),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Theme.of(context).primaryColor,
                             borderRadius: BorderRadius.circular(100),
@@ -273,28 +573,35 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Scrollable emojis except last one
                               Expanded(
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
-                                    children: widget.emojiList!.sublist(0, widget.emojiList!.length - 1).map((map) {
+                                    children: widget.emojiList!
+                                        .sublist(0,
+                                        widget.emojiList!.length - 1)
+                                        .map((map) {
                                       if (map['emoji'] != null) {
                                         return GestureDetector(
                                           onTap: () {
-                                            if (map['emoji'] == widget.chatReaction) {
+                                            if (map['emoji'] ==
+                                                widget.chatReaction) {
                                               widget.emojiClick(null);
                                             } else {
-                                              widget.emojiClick(map['emoji']);
+                                              widget
+                                                  .emojiClick(map['emoji']);
                                             }
                                             removeMenu();
                                             widget.backmanage(true);
                                           },
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                            padding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 4.0),
                                             child: Text(
                                               map['emoji'],
-                                              style: const TextStyle(fontSize: 22),
+                                              style: const TextStyle(
+                                                  fontSize: 22),
                                             ),
                                           ),
                                         );
@@ -305,26 +612,28 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                                   ),
                                 ),
                               ),
-
-                              // Fixed last emoji at the end
                               if (widget.emojiList!.isNotEmpty)
                                 Builder(
                                   builder: (context) {
-                                    final lastMap = widget.emojiList!.last;
+                                    final lastMap =
+                                        widget.emojiList!.last;
                                     if (lastMap['emoji'] != null) {
                                       return GestureDetector(
                                         onTap: () {
-                                          if (lastMap['emoji'] == widget.chatReaction) {
+                                          if (lastMap['emoji'] ==
+                                              widget.chatReaction) {
                                             widget.emojiClick(null);
                                           } else {
-                                            widget.emojiClick(lastMap['emoji']);
+                                            widget.emojiClick(
+                                                lastMap['emoji']);
                                           }
                                           removeMenu();
                                           widget.backmanage(true);
                                         },
                                         child: Text(
                                           lastMap['emoji'],
-                                          style: const TextStyle(fontSize: 22),
+                                          style: const TextStyle(
+                                              fontSize: 22),
                                         ),
                                       );
                                     } else {
@@ -341,7 +650,7 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                 },
               ),
 
-            // Popup Menu (unchanged)
+            // Popup Menu
             Positioned(
               left: leftPosition,
               top: menuTop,
@@ -349,19 +658,19 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                 tween: Tween(begin: 0.8, end: 1.0),
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.elasticOut,
-                builder: (context, scale, child) {
-                  return Transform.scale(
-                    scale: scale,
-                    alignment: Alignment.center,
-                    child: child,
-                  );
-                },
+                builder: (context, scale, child) => Transform.scale(
+                  scale: scale,
+                  alignment: Alignment.center,
+                  child: child,
+                ),
                 child: Material(
                   color: Colors.transparent,
                   child: Container(
                     width: menuWidth,
                     decoration: BoxDecoration(
-                      color: !widget.isDarkMode ? CupertinoColors.extraLightBackgroundGray : CupertinoColors.darkBackgroundGray,
+                      color: !widget.isDarkMode
+                          ? CupertinoColors.extraLightBackgroundGray
+                          : CupertinoColors.darkBackgroundGray,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: const [
                         BoxShadow(
@@ -376,18 +685,21 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                       children: widget.actions.asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
-                        final isLast = index == widget.actions.length - 1;
+                        final isLast =
+                            index == widget.actions.length - 1;
 
                         return Column(
                           children: [
                             GestureDetector(
                               onTap: removeMenu,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 10),
                                 alignment: Alignment.center,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     Flexible(
                                       child: Text(
@@ -395,14 +707,18 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 16,
-                                          color: item.isDestructive ? Colors.red : Colors.blue,
+                                          color: item.isDestructive
+                                              ? Colors.red
+                                              : Colors.blue,
                                         ),
                                       ),
                                     ),
-                                    if (item.icon != null) item.icon! else const SizedBox(width: 18),
+                                    if (item.icon != null)
+                                      item.icon!
+                                    else
+                                      const SizedBox(width: 18),
                                   ],
                                 ),
-                                color: Colors.transparent,
                               ),
                             ),
                             if (!isLast)
@@ -410,8 +726,11 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                                 height: 0.5,
                                 thickness: 0.5,
                                 color: widget.isDarkMode
-                                    ? CupertinoColors.extraLightBackgroundGray.withValues(alpha: 0.2)
-                                    : CupertinoColors.darkBackgroundGray.withValues(alpha: 0.2),
+                                    ? CupertinoColors
+                                    .extraLightBackgroundGray
+                                    .withOpacity(0.2)
+                                    : CupertinoColors.darkBackgroundGray
+                                    .withOpacity(0.2),
                               ),
                           ],
                         );
@@ -429,11 +748,11 @@ class IOSContextMenuState extends State<IOSContextMenu> {
     widget.backmanage(false);
     overlay.insert(_menuEntry!);
 
-    //
     if (_menuEntry != null) {
       OverlayTracker.add(_menuEntry!);
     }
   }
+
 
   void removeMenu({bool restoreKeyboard = true}) {
     if (_menuEntry != null) {
@@ -500,7 +819,7 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                     checkPlatformCompatibility: true,
                     emojiViewConfig: EmojiViewConfig(
                         emojiSizeMax: 28 * (foundation.defaultTargetPlatform == TargetPlatform.iOS ? 1.2 : 1.0),
-                        // backgroundColor: widget.isDarkMode == true ? Colors.black : Colors.white,
+                        backgroundColor: widget.isDarkMode == true ? Colors.black : Colors.white,
                         columns: 8,
                         noRecents: Text(
                           'No Recents',
@@ -529,10 +848,10 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                       // buttonColor: widget.isDarkMode == true ? Colors.white : Colors.black,
                       buttonIconColor: widget.isDarkMode == true ? Colors.white : Colors.black,
                       hintText: "Search emoji",
-                      // hintStyle: TextStyle(
-                      //   color: widget.isDarkMode == true ? Colors.white : Colors.black,
-                      // ),
-                      // emojiListBgColor: widget.isDarkMode == true ? Colors.black : Colors.white,
+                      hintStyle: TextStyle(
+                        color: widget.isDarkMode == true ? Colors.white : Colors.black,
+                      ),
+                      emojiListBgColor: widget.isDarkMode == true ? Colors.black : Colors.white,
                     ),
                   ),
                 ),
