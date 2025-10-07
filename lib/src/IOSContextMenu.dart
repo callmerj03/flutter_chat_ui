@@ -1072,9 +1072,8 @@ class IOSContextMenuState extends State<IOSContextMenu> {
   //   overlay.insert(_menuEntry!);
   // }
 
-
-
   // final latest and stable 6:12 pm
+
   void _showMenu(BuildContext context, Rect rect) async {
     await _capturePreview();
 
@@ -1087,7 +1086,6 @@ class IOSContextMenuState extends State<IOSContextMenu> {
 
     final overlay = Overlay.of(context);
     if (overlay == null) return;
-
 
     final screenSize = MediaQuery.of(context).size;
     final menuHeight = 50.0 * widget.actions.length + 12;
@@ -1375,6 +1373,7 @@ class IOSContextMenuState extends State<IOSContextMenu> {
       ),
     );
 
+    widget.backmanage(false);
     overlay.insert(_menuEntry!);
   }
 
@@ -1382,6 +1381,8 @@ class IOSContextMenuState extends State<IOSContextMenu> {
     if (_menuEntry != null) {
       _menuEntry!.remove();
       _menuEntry = null;
+
+      widget.backmanage(true);
 
       // if the keyboard was open before showing popup, open it again
       if (restoreKeyboard && _wasKeyboardOpenBeforeMenu) {
