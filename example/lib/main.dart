@@ -474,11 +474,13 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) => WillPopScope(
         onWillPop: () async {
+          if (OverlayTracker.hasOverlays) {
+            OverlayTracker.dismissLatest();
+            return false;
+          }
           return false;
         },
         child: Scaffold(
@@ -498,15 +500,13 @@ class _ChatPageState extends State<ChatPage> {
                   emojiEnlargementBehavior: EmojiEnlargementBehavior.single,
                   emojiList: [
                     {'emoji': '👍'},
-                    {'emoji': '👍'},
-                    {'emoji': '👍'},
-                    {'emoji': '👍'},
-                    {'emoji': '👍'},
-                    {'emoji': '👍'},
-                    {'emoji': '👍'},
-                    {'emoji': '👍'},
-                    {'emoji': '👍'},
-
+                    {'emoji': '❤️'},
+                    {'emoji': '😂'},
+                    {'emoji': '😍'},
+                    {'emoji': '😢'},
+                    {'emoji': '✅'},
+                    {'emoji': '⭐'},
+                    {'emoji': '🎉'},
                     {'emoji': null},
                   ],
                   menuActionModel: MenuActionModelList,
@@ -515,7 +515,9 @@ class _ChatPageState extends State<ChatPage> {
                     isTextSelectable: false,
                   ),
                   firebaseUserId: "82091008-a484-4a89-ae75-a22bf8d6f3ac",
-                  backmanage: (bool) {},
+                  backmanage: (back) {
+                    print("backmanage >> ${back}");
+                  },
                   isDarkMode: true,
 
                   // textController: _controller,

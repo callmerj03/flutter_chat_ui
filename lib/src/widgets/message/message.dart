@@ -465,6 +465,7 @@ class Message extends StatelessWidget {
               ),
               child: message.isDeleted == true
                   ? Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         borderRadius: borderRadius,
                         color: !currentUserIsAuthor || message.type == types.MessageType.image
@@ -473,14 +474,15 @@ class Message extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: borderRadius,
-                        child: const Text(
+                        child: Text(
                           "This meessage is deleted",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: !currentUserIsAuthor || message.type == types.MessageType.image ? Colors.black : Colors.white),
                         ),
                       ),
                     )
                   : IOSContextMenu(
-
                       isDarkMode: isDarkMode,
                       actions: menuActionModel,
                       emojiList: emojiList,

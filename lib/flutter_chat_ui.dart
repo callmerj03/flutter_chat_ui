@@ -1,6 +1,7 @@
 library flutter_chat_ui;
 
 export 'src/IOSContextMenu.dart';
+export 'src/OverlayTracker.dart';
 export 'src/chat_l10n.dart';
 export 'src/chat_theme.dart';
 export 'src/models/bubble_rtl_alignment.dart';
