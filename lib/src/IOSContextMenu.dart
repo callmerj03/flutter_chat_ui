@@ -134,6 +134,304 @@ class IOSContextMenuState extends State<IOSContextMenu> {
   bool _wasKeyboardOpenBeforeMenu = false;
   FocusNode? _lastFocusNode;
 
+  // void _showMenu(BuildContext context, Rect rect) async {
+  //   await _capturePreview();
+  //
+  //   // Remember current keyboard & focus state
+  //   _wasKeyboardOpenBeforeMenu = MediaQuery.of(context).viewInsets.bottom > 0;
+  //   _lastFocusNode = FocusManager.instance.primaryFocus;
+  //
+  //   // Dismiss keyboard
+  //   FocusScope.of(context).unfocus();
+  //
+  //   final overlay = Overlay.of(context);
+  //   if (overlay == null) return;
+  //
+  //   final screenSize = MediaQuery.of(context).size;
+  //   const padding = 8.0;
+  //   const menuGap = 6.0;
+  //   const emojiBarHeight = 48.0;
+  //   const bubbleGap = 8.0;
+  //   final safeTop = MediaQuery.of(context).padding.top + padding;
+  //   final safeBottom = screenSize.height - MediaQuery.of(context).padding.bottom - padding;
+  //
+  //   // Base sizes
+  //   final menuHeight = 50.0 * widget.actions.length + 12;
+  //   final menuWidth = screenSize.width * 0.6;
+  //
+  //   // Initial positions
+  //   double bubbleTop = rect.top;
+  //   double emojiTop = bubbleTop - emojiBarHeight - bubbleGap;
+  //   double menuTop = rect.bottom + menuGap;
+  //
+  //   // --- Step 1: Prevent bottom overflow ---
+  //   final overflowBottom = menuTop + menuHeight - safeBottom;
+  //   if (overflowBottom > 0) {
+  //     bubbleTop -= overflowBottom;
+  //     emojiTop -= overflowBottom;
+  //     menuTop -= overflowBottom;
+  //   }
+  //
+  //   // --- ✅ Step 1.5: Force everything below status bar (FIX ADDED HERE) ---
+  //   final double minTopAllowed = safeTop + 8.0;
+  //   if (emojiTop < minTopAllowed || bubbleTop < minTopAllowed) {
+  //     final shiftDown = minTopAllowed - min(emojiTop, bubbleTop);
+  //     bubbleTop += shiftDown;
+  //     emojiTop += shiftDown;
+  //     menuTop += shiftDown;
+  //   }
+  //
+  //   // --- Step 2: Prevent top overflow (redundant but kept for safety) ---
+  //   if (emojiTop < safeTop) {
+  //     final diff = safeTop - emojiTop;
+  //     bubbleTop += diff;
+  //     emojiTop += diff;
+  //     menuTop += diff;
+  //   }
+  //
+  //   // --- Step 3: If total height overflows screen, auto adjust ---
+  //   final totalTop = emojiTop;
+  //   final totalBottom = menuTop + menuHeight;
+  //   final totalHeight = totalBottom - totalTop;
+  //
+  //   if (totalHeight > screenSize.height - (padding * 2)) {
+  //     final overlapAmount = totalHeight - (screenSize.height - (padding * 2));
+  //     menuTop -= overlapAmount + 12;
+  //   }
+  //
+  //   // --- Step 4: Center popup horizontally ---
+  //   double leftPosition = rect.left + rect.width / 2 - menuWidth / 2;
+  //   leftPosition = leftPosition.clamp(padding, screenSize.width - menuWidth - padding);
+  //
+  //   // await Future.delayed(const Duration(milliseconds: 250));
+  //
+  //   _menuEntry = OverlayEntry(
+  //     builder: (context) => Material(
+  //       type: MaterialType.transparency,
+  //       child: Stack(
+  //         children: [
+  //           // Background Blur
+  //           Positioned.fill(
+  //             child: GestureDetector(
+  //               onTap: removeMenu,
+  //               child: BackdropFilter(
+  //                 filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+  //                 child: Container(color: Colors.black26),
+  //               ),
+  //             ),
+  //           ),
+  //
+  //           // Bubble preview
+  //           Positioned(
+  //             left: rect.left,
+  //             top: bubbleTop,
+  //             width: rect.width,
+  //             height: rect.height,
+  //             child: TweenAnimationBuilder<double>(
+  //               tween: Tween(begin: 1.0, end: 1.05),
+  //               duration: const Duration(milliseconds: 150),
+  //               builder: (context, scale, child) => Transform.scale(
+  //                 scale: scale,
+  //                 alignment: Alignment.center,
+  //                 child: child,
+  //               ),
+  //               child: _previewBytes != null ? Image.memory(_previewBytes!) : const SizedBox(),
+  //             ),
+  //           ),
+  //
+  //           // Emoji bar (with dynamic centering)
+  //           if (widget.emojiList != null && widget.emojiList!.isNotEmpty)
+  //             Builder(
+  //               builder: (context) {
+  //                 final emojiCount = widget.emojiList!.length;
+  //                 final singleEmojiWidth = 36.0;
+  //                 final totalEmojiWidth = emojiCount * singleEmojiWidth + 16;
+  //                 final maxEmojiWidth = screenSize.width * 0.8;
+  //                 final emojiBarWidth = totalEmojiWidth.clamp(120.0, maxEmojiWidth);
+  //
+  //                 double emojiLeft = rect.left + rect.width / 2 - emojiBarWidth / 2;
+  //                 emojiLeft = emojiLeft.clamp(padding, screenSize.width - emojiBarWidth - padding);
+  //
+  //                 return Positioned(
+  //                   left: emojiLeft,
+  //                   top: emojiTop,
+  //                   child: Material(
+  //                     color: Colors.transparent,
+  //                     child: ConstrainedBox(
+  //                       constraints: BoxConstraints(
+  //                         maxWidth: emojiBarWidth,
+  //                         maxHeight: emojiBarHeight * 2.2,
+  //                       ),
+  //                       child: Container(
+  //                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  //                         decoration: BoxDecoration(
+  //                           color: Theme.of(context).primaryColor,
+  //                           borderRadius: BorderRadius.circular(100),
+  //                         ),
+  //                         child: Row(
+  //                           mainAxisSize: MainAxisSize.min,
+  //                           children: [
+  //                             Expanded(
+  //                               child: SingleChildScrollView(
+  //                                 scrollDirection: Axis.horizontal,
+  //                                 child: Row(
+  //                                   children: widget.emojiList!.sublist(0, widget.emojiList!.length - 1).map((map) {
+  //                                     if (map['emoji'] != null) {
+  //                                       return GestureDetector(
+  //                                         onTap: () {
+  //                                           if (map['emoji'] == widget.chatReaction) {
+  //                                             widget.emojiClick(null);
+  //                                           } else {
+  //                                             widget.emojiClick(map['emoji']);
+  //                                           }
+  //                                           removeMenu();
+  //                                           widget.backmanage(true);
+  //                                         },
+  //                                         child: Padding(
+  //                                           padding: const EdgeInsets.symmetric(horizontal: 4.0),
+  //                                           child: Text(
+  //                                             map['emoji'],
+  //                                             style: const TextStyle(fontSize: 22),
+  //                                           ),
+  //                                         ),
+  //                                       );
+  //                                     } else {
+  //                                       return emojiViewAddIcon();
+  //                                     }
+  //                                   }).toList(),
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                             if (widget.emojiList!.isNotEmpty)
+  //                               Builder(
+  //                                 builder: (context) {
+  //                                   final lastMap = widget.emojiList!.last;
+  //                                   if (lastMap['emoji'] != null) {
+  //                                     return GestureDetector(
+  //                                       onTap: () {
+  //                                         if (lastMap['emoji'] == widget.chatReaction) {
+  //                                           widget.emojiClick(null);
+  //                                         } else {
+  //                                           widget.emojiClick(lastMap['emoji']);
+  //                                         }
+  //                                         removeMenu();
+  //                                         widget.backmanage(true);
+  //                                       },
+  //                                       child: Text(
+  //                                         lastMap['emoji'],
+  //                                         style: const TextStyle(fontSize: 22),
+  //                                       ),
+  //                                     );
+  //                                   } else {
+  //                                     return emojiViewAddIcon();
+  //                                   }
+  //                                 },
+  //                               ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //             ),
+  //
+  //           // Popup Menu
+  //           Positioned(
+  //             left: leftPosition,
+  //             top: menuTop,
+  //             child: TweenAnimationBuilder<double>(
+  //               tween: Tween(begin: 0.8, end: 1.0),
+  //               duration: const Duration(milliseconds: 250),
+  //               curve: Curves.elasticOut,
+  //               builder: (context, scale, child) => Transform.scale(
+  //                 scale: scale,
+  //                 alignment: Alignment.center,
+  //                 child: child,
+  //               ),
+  //               child: Material(
+  //                 color: Colors.transparent,
+  //                 child: Container(
+  //                   width: menuWidth,
+  //                   decoration: BoxDecoration(
+  //                     color: !widget.isDarkMode ? CupertinoColors.extraLightBackgroundGray : CupertinoColors.darkBackgroundGray,
+  //                     borderRadius: BorderRadius.circular(12),
+  //                     boxShadow: const [
+  //                       BoxShadow(
+  //                         color: Colors.black26,
+  //                         blurRadius: 6,
+  //                         offset: Offset(2, 2),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   child: Column(
+  //                     mainAxisSize: MainAxisSize.min,
+  //                     children: widget.actions.asMap().entries.map((entry) {
+  //                       final index = entry.key;
+  //                       final item = entry.value;
+  //                       final isLast = index == widget.actions.length - 1;
+  //
+  //                       return Column(
+  //                         children: [
+  //                           InkWell(
+  //                             onTap: () {
+  //                               //
+  //                               removeMenu();
+  //
+  //                               //
+  //                               item.callback!(widget.message, "");
+  //                             },
+  //                             child: Container(
+  //                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  //                               alignment: Alignment.center,
+  //                               child: Row(
+  //                                 mainAxisSize: MainAxisSize.max,
+  //                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                                 children: [
+  //                                   Flexible(
+  //                                     child: Text(
+  //                                       item.title ?? "",
+  //                                       textAlign: TextAlign.center,
+  //                                       style: TextStyle(
+  //                                         fontSize: 16,
+  //                                         color: item.isDestructive ? Colors.red : Colors.blue,
+  //                                       ),
+  //                                     ),
+  //                                   ),
+  //                                   if (item.icon != null) item.icon! else const SizedBox(width: 18),
+  //                                 ],
+  //                               ),
+  //                             ),
+  //                           ),
+  //                           if (!isLast)
+  //                             Divider(
+  //                               height: 0.5,
+  //                               thickness: 0.5,
+  //                               color: widget.isDarkMode
+  //                                   ? CupertinoColors.extraLightBackgroundGray.withOpacity(0.2)
+  //                                   : CupertinoColors.darkBackgroundGray.withOpacity(0.2),
+  //                             ),
+  //                         ],
+  //                       );
+  //                     }).toList(),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  //
+  //   widget.backmanage(false);
+  //   overlay.insert(_menuEntry!);
+  //
+  //   if (_menuEntry != null) {
+  //     OverlayTracker.add(_menuEntry!);
+  //   }
+  // }
+
   void _showMenu(BuildContext context, Rect rect) async {
     await _capturePreview();
 
@@ -172,22 +470,31 @@ class IOSContextMenuState extends State<IOSContextMenu> {
       menuTop -= overflowBottom;
     }
 
-    // --- ✅ Step 1.5: Force everything below status bar (FIX ADDED HERE) ---
-    final double minTopAllowed = safeTop + 8.0;
-    if (emojiTop < minTopAllowed || bubbleTop < minTopAllowed) {
-      final shiftDown = minTopAllowed - min(emojiTop, bubbleTop);
+    // --- ✅ FIXED SAFE AREA HANDLING (status bar / app bar overlap) ---
+    final double minTopAllowed = safeTop + 12.0; // increased margin to avoid clipping under AppBar
+    final overlayContext = Overlay.of(context).context;
+    final double safeTopInset = MediaQuery.of(overlayContext).viewPadding.top; // accounts for notch / translucent bar
+
+    if (emojiTop < minTopAllowed || bubbleTop < minTopAllowed || emojiTop < safeTopInset) {
+      final shiftDown = (minTopAllowed - min(emojiTop, bubbleTop)).clamp(0, 100.0);
       bubbleTop += shiftDown;
       emojiTop += shiftDown;
       menuTop += shiftDown;
     }
 
-    // --- Step 2: Prevent top overflow (redundant but kept for safety) ---
+    print("okok000> ${emojiTop} ::: ${menuTop} :: ${screenSize.height}");
+    print("okok000111> ${safeTop}");
+    print("okok0003222221> ${safeTopInset}");
+
+    // --- Step 2: Prevent top overflow (kept as safeguard) ---
     if (emojiTop < safeTop) {
       final diff = safeTop - emojiTop;
       bubbleTop += diff;
       emojiTop += diff;
       menuTop += diff;
     }
+
+    print("okok> ${emojiTop} ::: ${menuTop} :: ${screenSize.height}");
 
     // --- Step 3: If total height overflows screen, auto adjust ---
     final totalTop = emojiTop;
@@ -196,14 +503,16 @@ class IOSContextMenuState extends State<IOSContextMenu> {
 
     if (totalHeight > screenSize.height - (padding * 2)) {
       final overlapAmount = totalHeight - (screenSize.height - (padding * 2));
-      menuTop -= overlapAmount + 12;
+      menuTop -= overlapAmount + 24;
     }
+
+    print("okok>---  ${menuTop} :: @@@@2");
 
     // --- Step 4: Center popup horizontally ---
     double leftPosition = rect.left + rect.width / 2 - menuWidth / 2;
     leftPosition = leftPosition.clamp(padding, screenSize.width - menuWidth - padding);
 
-    await Future.delayed(const Duration(milliseconds: 250));
+    // await Future.delayed(const Duration(milliseconds: 250));
 
     _menuEntry = OverlayEntry(
       builder: (context) => Material(
@@ -235,7 +544,15 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                   alignment: Alignment.center,
                   child: child,
                 ),
-                child: _previewBytes != null ? Image.memory(_previewBytes!) : const SizedBox(),
+                child: _previewBytes != null
+                    ? Image.memory(
+                        _previewBytes!,
+                        // fit: BoxFit.none,
+                        // filterQuality: FilterQuality.high,
+                        // width: rect.width,
+                        // height: rect.height,
+                      )
+                    : const SizedBox(),
               ),
             ),
 
@@ -254,7 +571,7 @@ class IOSContextMenuState extends State<IOSContextMenu> {
 
                   return Positioned(
                     left: emojiLeft,
-                    top: emojiTop,
+                    top: emojiTop < 40 ? 40 : emojiTop,
                     child: Material(
                       color: Colors.transparent,
                       child: ConstrainedBox(
@@ -375,11 +692,8 @@ class IOSContextMenuState extends State<IOSContextMenu> {
                           children: [
                             InkWell(
                               onTap: () {
-                                //
                                 removeMenu();
-
-                                //
-                                item.callback!(widget.message , "");
+                                item.callback!(widget.message, "");
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -546,7 +860,7 @@ class IOSContextMenuState extends State<IOSContextMenu> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPressStart: (details) {
+      onLongPress: () {
         final box = context.findRenderObject() as RenderBox;
         final rect = box.localToGlobal(Offset.zero) & box.size;
         _showMenu(context, rect);

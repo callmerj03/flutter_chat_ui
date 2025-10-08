@@ -247,26 +247,150 @@ class _ChatPageState extends State<ChatPage> {
       ],
     ));
 
-    MenuActionModelList.add(MenuActionModel(
-      title: "Delete",
-      callback: (message, title) {
-        print(">>> ${title}");
-      },
-      icon: Icon(Icons.delete),
-      typesMessage: [
-        types.MessageType.file,
-        types.MessageType.image,
-        types.MessageType.video,
-        types.MessageType.audio,
-        types.MessageType.system,
-        types.MessageType.unsupported,
-        types.MessageType.custom,
-        types.MessageType.text,
-      ],
-      authorIds: [
-        '82091008-a484-4a89-ae75-a22bf8d6f3ac',
-      ],
-    ));
+    // MenuActionModelList.add(MenuActionModel(
+    //   title: "Delete",
+    //   callback: (message, title) {
+    //     print(">>> ${title}");
+    //   },
+    //   icon: Icon(Icons.delete),
+    //   typesMessage: [
+    //     types.MessageType.file,
+    //     types.MessageType.image,
+    //     types.MessageType.video,
+    //     types.MessageType.audio,
+    //     types.MessageType.system,
+    //     types.MessageType.unsupported,
+    //     types.MessageType.custom,
+    //     types.MessageType.text,
+    //   ],
+    //   authorIds: [
+    //     '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+    //   ],
+    // ));
+
+
+
+    // //
+    // MenuActionModelList.add(MenuActionModel(
+    //   title: "Delete",
+    //   callback: (message, title) {
+    //     print(">>> ${title}");
+    //   },
+    //   icon: Icon(Icons.delete),
+    //   typesMessage: [
+    //     types.MessageType.file,
+    //     types.MessageType.image,
+    //     types.MessageType.video,
+    //     types.MessageType.audio,
+    //     types.MessageType.system,
+    //     types.MessageType.unsupported,
+    //     types.MessageType.custom,
+    //     types.MessageType.text,
+    //   ],
+    //   authorIds: [
+    //     '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+    //   ],
+    // ));
+    // MenuActionModelList.add(MenuActionModel(
+    //   title: "Delete",
+    //   callback: (message, title) {
+    //     print(">>> ${title}");
+    //   },
+    //   icon: Icon(Icons.delete),
+    //   typesMessage: [
+    //     types.MessageType.file,
+    //     types.MessageType.image,
+    //     types.MessageType.video,
+    //     types.MessageType.audio,
+    //     types.MessageType.system,
+    //     types.MessageType.unsupported,
+    //     types.MessageType.custom,
+    //     types.MessageType.text,
+    //   ],
+    //   authorIds: [
+    //     '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+    //   ],
+    // ));
+    // MenuActionModelList.add(MenuActionModel(
+    //   title: "Delete",
+    //   callback: (message, title) {
+    //     print(">>> ${title}");
+    //   },
+    //   icon: Icon(Icons.delete),
+    //   typesMessage: [
+    //     types.MessageType.file,
+    //     types.MessageType.image,
+    //     types.MessageType.video,
+    //     types.MessageType.audio,
+    //     types.MessageType.system,
+    //     types.MessageType.unsupported,
+    //     types.MessageType.custom,
+    //     types.MessageType.text,
+    //   ],
+    //   authorIds: [
+    //     '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+    //   ],
+    // ));
+    // MenuActionModelList.add(MenuActionModel(
+    //   title: "Delete",
+    //   callback: (message, title) {
+    //     print(">>> ${title}");
+    //   },
+    //   icon: Icon(Icons.delete),
+    //   typesMessage: [
+    //     types.MessageType.file,
+    //     types.MessageType.image,
+    //     types.MessageType.video,
+    //     types.MessageType.audio,
+    //     types.MessageType.system,
+    //     types.MessageType.unsupported,
+    //     types.MessageType.custom,
+    //     types.MessageType.text,
+    //   ],
+    //   authorIds: [
+    //     '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+    //   ],
+    // ));
+    // MenuActionModelList.add(MenuActionModel(
+    //   title: "Delete",
+    //   callback: (message, title) {
+    //     print(">>> ${title}");
+    //   },
+    //   icon: Icon(Icons.delete),
+    //   typesMessage: [
+    //     types.MessageType.file,
+    //     types.MessageType.image,
+    //     types.MessageType.video,
+    //     types.MessageType.audio,
+    //     types.MessageType.system,
+    //     types.MessageType.unsupported,
+    //     types.MessageType.custom,
+    //     types.MessageType.text,
+    //   ],
+    //   authorIds: [
+    //     '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+    //   ],
+    // ));
+    // MenuActionModelList.add(MenuActionModel(
+    //   title: "Delete",
+    //   callback: (message, title) {
+    //     print(">>> ${title}");
+    //   },
+    //   icon: Icon(Icons.delete),
+    //   typesMessage: [
+    //     types.MessageType.file,
+    //     types.MessageType.image,
+    //     types.MessageType.video,
+    //     types.MessageType.audio,
+    //     types.MessageType.system,
+    //     types.MessageType.unsupported,
+    //     types.MessageType.custom,
+    //     types.MessageType.text,
+    //   ],
+    //   authorIds: [
+    //     '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+    //   ],
+    // ));
 
 
 
@@ -300,6 +424,7 @@ class _ChatPageState extends State<ChatPage> {
           return false;
         },
         child: Scaffold(
+          appBar: AppBar(),
           body: Column(
             children: [
               Expanded(
